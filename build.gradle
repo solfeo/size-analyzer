@@ -1,0 +1,89 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
+buildscript {
+    repositories {
+        jcenter()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath "com.google.protobuf:protobuf-gradle-plugin:0.8.3"
+        classpath "com.github.jengelman.gradle.plugins:shadow:2.0.2"
+    }
+}
+
+apply plugin: "com.github.johnrengelman.shadow"
+apply plugin: "com.google.protobuf"
+apply plugin: "java"
+apply plugin: "maven"
+
+repositories {
+    mavenLocal()
+    jcenter()
+    google()
+    maven { url "https://repository.apache.org/content/repositories/snapshots/" }
+}
+
+dependencies {
+    compile "com.android.tools.build:aapt2-proto:0.3.1"
+    compile "com.google.auto.value:auto-value:1.5.2"
+    annotationProcessor "com.google.auto.value:auto-value:1.5.2"
+    compile "com.google.errorprone:error_prone_annotations:2.2.0"
+    compile "com.google.guava:guava:26.0-jre"
+    compile "com.google.protobuf:protobuf-java:3.4.0"
+    compile "com.android.tools.build:bundletool:0.8.0"
+    compile "org.codehaus.groovy:groovy-all:2.4.8"
+    compile "org.apache.commons:commons-imaging:1.0-SNAPSHOT"
+    compile files("libs/libwebp/libwebp.jar")
+
+    testCompile "com.android.tools.build:aapt2-proto:0.3.1"
+    testCompile "com.google.auto.value:auto-value:1.5.2"
+    testAnnotationProcessor "com.google.auto.value:auto-value:1.5.2"
+    testCompile "com.google.errorprone:error_prone_annotations:2.2.0"
+    testCompile "com.google.guava:guava:26.0-jre"
+    testCompile "com.google.protobuf:protobuf-java:3.4.0"
+    testCompile "com.android.tools.build:bundletool:0.8.0"
+    testCompile "org.apache.commons:commons-imaging:1.0-SNAPSHOT"
+    testCompile files("libs/libwebp/libwebp.jar")
+    testCompile "org.mockito:mockito-core:2.19.0"
+    testCompile "junit:junit:4.12"
+    testCompile "org.junit.jupiter:junit-jupiter-api:5.2.0"
+    testCompile "org.junit.vintage:junit-vintage-engine:5.2.0"
+    testRuntime "org.junit.jupiter:junit-jupiter-engine:5.2.0"
+    testCompile "org.junit.platform:junit-platform-runner:1.2.0"
+    testCompile "com.google.truth.extensions:truth-java8-extension:0.42"
+    testCompile "com.google.truth.extensions:truth-proto-extension:0.42"
+}
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:3.4.0"
+    }
+}
+
+shadowJar {
+    baseName = 'analyzer'
+    classifier = ''
+}
+
+// Artifact to use as standalone command line tool.
+task executableJar(type: ShadowJar) {
+    baseName = 'analyzer'
+    classifier = 'all'
+    manifest {
+        attributes 'Main-Class': 'com.android.tools.sizereduction.analyzer.AnalyzerMain'
+    }
+    from sourceSets.main.output
+    from('libs/libwebp') {
+      include '**/*'
+      exclude 'libwebp.jar'
+    }
+    configurations = [
+        project.configurations.runtime,
+        project.configurations.shadow
+    ]
+    exclude 'META-INF/*.SF'
+    exclude 'META-INF/*.DSA'
+    exclude 'META-INF/*.RSA'
+}
