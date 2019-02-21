@@ -81,7 +81,8 @@ public class LargeFilesSuggester implements BundleEntrySuggester, ProjectTreeSug
     if (isAssetFile || isMediaFile) {
       suggestions.add(
           Suggestion.create(
-              Suggestion.Category.LARGE_FILES_DYNAMIC_FEATURE,
+              Suggestion.IssueType.LARGE_FILES_DYNAMIC_FEATURE,
+              Suggestion.Category.LARGE_FILES,
               "Place large file "
                   + fileData.getPathWithinRoot()
                   + " inside an on demand dynamic-feature to avoid bundling in apk",
@@ -90,7 +91,8 @@ public class LargeFilesSuggester implements BundleEntrySuggester, ProjectTreeSug
     if (isMediaFile) {
       suggestions.add(
           Suggestion.create(
-              Suggestion.Category.MEDIA_STREAMING,
+              Suggestion.IssueType.MEDIA_STREAMING,
+              Suggestion.Category.LARGE_FILES,
               "Stream media file "
                   + fileData.getPathWithinRoot()
                   + " from the internet to avoid bundling in apk",

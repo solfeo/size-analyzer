@@ -23,6 +23,7 @@ import com.android.tools.sizereduction.analyzer.suggesters.BundleSuggester;
 import com.android.tools.sizereduction.analyzer.suggesters.ProjectSuggester;
 import com.android.tools.sizereduction.analyzer.suggesters.Suggestion;
 import com.android.tools.sizereduction.analyzer.suggesters.Suggestion.Category;
+import com.android.tools.sizereduction.analyzer.suggesters.Suggestion.IssueType;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -62,7 +63,8 @@ public final class ProguardSuggester implements BundleSuggester, ProjectSuggeste
     if (proguardEntry == null) {
       return ImmutableList.of(
           Suggestion.create(
-              Category.PROGUARD_NO_MAP,
+              IssueType.PROGUARD_NO_MAP,
+              Category.PROGUARD,
               NO_MAP_SUGGESTION_MESSAGE,
               /* estimatedBytesSaved= */ null));
     }
@@ -72,7 +74,8 @@ public final class ProguardSuggester implements BundleSuggester, ProjectSuggeste
       // Empty deobfuscation map.
       return ImmutableList.of(
           Suggestion.create(
-              Category.PROGUARD_EMPTY_MAP,
+              IssueType.PROGUARD_EMPTY_MAP,
+              Category.PROGUARD,
               EMPTY_MAP_SUGGESTION_MESSAGE,
               /* estimatedBytesSaved= */ null));
     }
@@ -95,20 +98,32 @@ public final class ProguardSuggester implements BundleSuggester, ProjectSuggeste
     if (proguardConfig == null || !proguardConfig.getHasProguardRules()) {
       return ImmutableList.of(
           Suggestion.create(
-              Category.PROGUARD_NO_SHRINKING, NO_CODE_SHRINKING, /* estimatedBytesSaved= */ null),
+              IssueType.PROGUARD_NO_SHRINKING,
+              Category.PROGUARD,
+              NO_CODE_SHRINKING,
+              /* estimatedBytesSaved= */ null),
           Suggestion.create(
-              Category.PROGUARD_NO_OBFUSCATION, NO_OBFUSCATION, /* estimatedBytesSaved= */ null));
+              IssueType.PROGUARD_NO_OBFUSCATION,
+              Category.PROGUARD,
+              NO_OBFUSCATION,
+              /* estimatedBytesSaved= */ null));
     }
     ImmutableList.Builder<Suggestion> suggestions = ImmutableList.<Suggestion>builder();
     if (!proguardConfig.getMinifyEnabled()) {
       suggestions.add(
           Suggestion.create(
-              Category.PROGUARD_NO_SHRINKING, NO_CODE_SHRINKING, /* estimatedBytesSaved= */ null));
+              IssueType.PROGUARD_NO_SHRINKING,
+              Category.PROGUARD,
+              NO_CODE_SHRINKING,
+              /* estimatedBytesSaved= */ null));
     }
     if (!proguardConfig.getObfuscationEnabled()) {
       suggestions.add(
           Suggestion.create(
-              Category.PROGUARD_NO_OBFUSCATION, NO_OBFUSCATION, /* estimatedBytesSaved= */ null));
+              IssueType.PROGUARD_NO_OBFUSCATION,
+              Category.PROGUARD,
+              NO_OBFUSCATION,
+              /* estimatedBytesSaved= */ null));
     }
     return suggestions.build();
   }

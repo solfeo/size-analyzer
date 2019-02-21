@@ -18,6 +18,7 @@ package com.android.tools.sizereduction.analyzer.analyzers;
 
 import com.android.tools.sizereduction.analyzer.model.GradleContext;
 import com.android.tools.sizereduction.analyzer.model.Project;
+import com.android.tools.sizereduction.analyzer.suggesters.ProjectSuggester;
 import com.android.tools.sizereduction.analyzer.suggesters.ProjectTreeSuggester;
 import com.android.tools.sizereduction.analyzer.suggesters.Suggestion;
 import com.google.common.collect.ImmutableList;
@@ -33,8 +34,12 @@ import javax.annotation.CheckReturnValue;
 public final class ProjectAnalyzer implements ArtifactAnalyzer {
 
   private final ImmutableList<ProjectTreeSuggester> suggesters;
+  private final ImmutableList<ProjectSuggester> projectSuggesters;
 
-  public ProjectAnalyzer(ImmutableList<ProjectTreeSuggester> suggesters) {
+  public ProjectAnalyzer(
+      ImmutableList<ProjectSuggester> projectSuggesters,
+      ImmutableList<ProjectTreeSuggester> suggesters) {
+    this.projectSuggesters = projectSuggesters;
     this.suggesters = suggesters;
   }
 
@@ -44,13 +49,33 @@ public final class ProjectAnalyzer implements ArtifactAnalyzer {
   public ImmutableList<Suggestion> analyze(File projectDirectory) {
     File buildFile = new File(projectDirectory, Project.BUILD_GRADLE);
     Project project = buildFile.exists() ? Project.create(projectDirectory, null) : null;
-    return analyzeDirectory(projectDirectory, project, projectDirectory, suggesters);
+    return analyzeProject(
+        projectDirectory, project, projectDirectory, projectSuggesters, suggesters);
+  }
+
+  private static ImmutableList<Suggestion> analyzeProject(
+      File rootDirectory,
+      Project project,
+      File directory,
+      ImmutableList<ProjectSuggester> projectSuggesters,
+      ImmutableList<ProjectTreeSuggester> suggesters) {
+    ImmutableList.Builder<Suggestion> resultBuilder = ImmutableList.<Suggestion>builder();
+    if (project != null) {
+      for (ProjectSuggester projectSuggester : projectSuggesters) {
+        resultBuilder.addAll(
+            projectSuggester.processProject(project.getContext(), project.getProjectDirectory()));
+      }
+    }
+    return resultBuilder
+        .addAll(analyzeDirectory(rootDirectory, project, directory, projectSuggesters, suggesters))
+        .build();
   }
 
   private static ImmutableList<Suggestion> analyzeDirectory(
       File rootDirectory,
       Project project,
       File directory,
+      ImmutableList<ProjectSuggester> projectSuggesters,
       ImmutableList<ProjectTreeSuggester> suggesters) {
     ImmutableList.Builder<Suggestion> resultBuilder = ImmutableList.<Suggestion>builder();
     File[] files = directory.listFiles();
@@ -63,10 +88,12 @@ public final class ProjectAnalyzer implements ArtifactAnalyzer {
         File buildFile = new File(file, Project.BUILD_GRADLE);
         if (buildFile.exists()) {
           Project subProject = Project.create(file, project);
-          resultBuilder.addAll(analyzeDirectory(rootDirectory, subProject, file, suggesters));
+          resultBuilder.addAll(
+              analyzeProject(rootDirectory, subProject, file, projectSuggesters, suggesters));
         } else {
           // recurse, through directory under the same directory.
-          resultBuilder.addAll(analyzeDirectory(rootDirectory, project, file, suggesters));
+          resultBuilder.addAll(
+              analyzeDirectory(rootDirectory, project, file, projectSuggesters, suggesters));
         }
       } else {
         GradleContext context =

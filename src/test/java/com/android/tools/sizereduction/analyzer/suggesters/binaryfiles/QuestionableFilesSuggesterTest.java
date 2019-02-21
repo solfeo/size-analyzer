@@ -192,7 +192,8 @@ public class QuestionableFilesSuggesterTest {
     assertThat(suggestions)
         .containsExactly(
             Suggestion.create(
-                Suggestion.Category.QUESTIONABLE_FILE,
+                Suggestion.IssueType.QUESTIONABLE_FILE,
+                Suggestion.Category.LARGE_FILES,
                 QuestionableFilesSuggester.getSuggestionMessage(Paths.get(filename)),
                 LARGE_FILE_SIZE));
   }
@@ -205,7 +206,8 @@ public class QuestionableFilesSuggesterTest {
     assertThat(suggestions)
         .containsExactly(
             Suggestion.create(
-                Suggestion.Category.QUESTIONABLE_FILE,
+                Suggestion.IssueType.QUESTIONABLE_FILE,
+                Suggestion.Category.LARGE_FILES,
                 QuestionableFilesSuggester.getSuggestionMessage(Paths.get(filename)),
                 LARGE_FILE_SIZE));
   }

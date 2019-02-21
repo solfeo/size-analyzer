@@ -24,12 +24,14 @@ import com.android.tools.sizereduction.analyzer.suggesters.ApkEntrySuggester;
 import com.android.tools.sizereduction.analyzer.suggesters.ApkSuggester;
 import com.android.tools.sizereduction.analyzer.suggesters.BundleEntrySuggester;
 import com.android.tools.sizereduction.analyzer.suggesters.BundleSuggester;
+import com.android.tools.sizereduction.analyzer.suggesters.ProjectSuggester;
 import com.android.tools.sizereduction.analyzer.suggesters.ProjectTreeSuggester;
 import com.android.tools.sizereduction.analyzer.suggesters.Suggestion;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
+import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.zip.ZipFile;
@@ -49,6 +51,7 @@ public final class FakeSuggester
         BundleSuggester,
         ApkEntrySuggester,
         BundleEntrySuggester,
+        ProjectSuggester,
         ProjectTreeSuggester {
 
   // Record of analyzed entries in case when the suggester scans an entry-organized artifact, on an
@@ -70,6 +73,11 @@ public final class FakeSuggester
 
   @Override
   public ImmutableList<Suggestion> processBundle(BundleContext context, ZipFile bundle) {
+    return getArtifactSuggestions();
+  }
+
+  @Override
+  public ImmutableList<Suggestion> processProject(GradleContext context, File projectDir) {
     return getArtifactSuggestions();
   }
 

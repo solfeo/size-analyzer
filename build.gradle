@@ -33,8 +33,10 @@ dependencies {
     compile "com.google.guava:guava:26.0-jre"
     compile "com.google.protobuf:protobuf-java:3.4.0"
     compile "com.android.tools.build:bundletool:0.8.0"
+    compile "info.picocli:picocli:3.0.0"
     compile "org.codehaus.groovy:groovy-all:2.4.8"
     compile "org.apache.commons:commons-imaging:1.0-SNAPSHOT"
+    compile "org.fusesource.jansi:jansi:1.16"
     compile files("libs/libwebp/libwebp.jar")
 
     testCompile "com.android.tools.build:aapt2-proto:0.3.1"
@@ -44,7 +46,9 @@ dependencies {
     testCompile "com.google.guava:guava:26.0-jre"
     testCompile "com.google.protobuf:protobuf-java:3.4.0"
     testCompile "com.android.tools.build:bundletool:0.8.0"
+    testCompile "info.picocli:picocli:3.0.0"
     testCompile "org.apache.commons:commons-imaging:1.0-SNAPSHOT"
+    testCompile "org.fusesource.jansi:jansi:1.16"
     testCompile files("libs/libwebp/libwebp.jar")
     testCompile "org.mockito:mockito-core:2.19.0"
     testCompile "junit:junit:4.12"

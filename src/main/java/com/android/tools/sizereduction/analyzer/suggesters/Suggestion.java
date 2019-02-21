@@ -25,6 +25,13 @@ public abstract class Suggestion {
   /** The suggestion category for a given suggestion. */
   public enum Category {
     WEBP,
+    LARGE_FILES,
+    PROGUARD,
+  }
+
+  /** The specific issue type for a given suggestion. */
+  public enum IssueType {
+    WEBP,
     MEDIA_STREAMING,
     LARGE_FILES_DYNAMIC_FEATURE,
     PROGUARD_NO_MAP,
@@ -35,9 +42,11 @@ public abstract class Suggestion {
   }
 
   public static Suggestion create(
-      Category category, String message, @Nullable Long estimatedBytesSaved) {
-    return new AutoValue_Suggestion(category, message, estimatedBytesSaved);
+      IssueType issueType, Category category, String message, @Nullable Long estimatedBytesSaved) {
+    return new AutoValue_Suggestion(issueType, category, message, estimatedBytesSaved);
   }
+
+  public abstract IssueType getIssueType();
 
   public abstract Category getCategory();
 

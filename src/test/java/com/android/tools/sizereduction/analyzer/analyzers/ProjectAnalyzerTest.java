@@ -21,6 +21,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.android.tools.sizereduction.analyzer.model.GradleContext;
 import com.android.tools.sizereduction.analyzer.model.ProguardConfig;
+import com.android.tools.sizereduction.analyzer.suggesters.ProjectSuggester;
 import com.android.tools.sizereduction.analyzer.suggesters.ProjectTreeSuggester;
 import com.android.tools.sizereduction.analyzer.suggesters.Suggestion;
 import com.android.tools.sizereduction.analyzer.suggesters.testing.FakeSuggester;
@@ -48,15 +49,17 @@ public final class ProjectAnalyzerTest {
 
   private final FakeSuggester suggester = new FakeSuggester();
   private ImmutableList<ProjectTreeSuggester> testSuggesters;
+  private ImmutableList<ProjectSuggester> testProjectSuggesters;
 
   @Before
   public void setUp() {
+    testProjectSuggesters = ImmutableList.of(suggester);
     testSuggesters = ImmutableList.of(suggester);
   }
 
   @Test
   public void analyze_iteratesOverAppProject() throws Exception {
-    ProjectAnalyzer analyzer = new ProjectAnalyzer(testSuggesters);
+    ProjectAnalyzer analyzer = new ProjectAnalyzer(testProjectSuggesters, testSuggesters);
     File appProject = TestUtils.getTestDataFile(APP_PROJECT);
     GradleContext context =
         GradleContext.builder()
@@ -73,21 +76,31 @@ public final class ProjectAnalyzerTest {
             .build();
     Suggestion stubSuggestion =
         Suggestion.create(
-            Suggestion.Category.WEBP, "Stub Suggestion", /* estimatedBytesSaved= */ null);
+            Suggestion.IssueType.WEBP,
+            Suggestion.Category.WEBP,
+            "Stub Suggestion",
+            /* estimatedBytesSaved= */ null);
+    Suggestion stubArtifactSuggestion =
+        Suggestion.create(
+            Suggestion.IssueType.PROGUARD_NO_OBFUSCATION,
+            Suggestion.Category.PROGUARD,
+            "Stub Artifact Suggestion",
+            /* estimatedBytesSaved= */ null);
+    suggester.setArtifactSuggestions(ImmutableList.of(stubArtifactSuggestion));
     suggester.setEntrySuggestions(
         ImmutableMultimap.of(
             ContextAndEntryPath.create(context, "src/main/AndroidManifest.xml"), stubSuggestion));
 
     ImmutableList<Suggestion> suggestions = analyzer.analyze(appProject);
 
-    assertThat(suggestions).containsExactly(stubSuggestion);
+    assertThat(suggestions).containsExactly(stubSuggestion, stubArtifactSuggestion);
     assertThat(suggester.getAnalyzedEntries())
         .containsExactlyElementsIn(filesUnderDirectory(appProject.toPath()));
   }
 
   @Test
   public void analyze_iteratesOverRootProject() throws Exception {
-    ProjectAnalyzer analyzer = new ProjectAnalyzer(testSuggesters);
+    ProjectAnalyzer analyzer = new ProjectAnalyzer(testProjectSuggesters, testSuggesters);
     File rootProject = TestUtils.getTestDataFile(ROOT_PROJECT);
     GradleContext appContext =
         GradleContext.builder()
@@ -104,7 +117,10 @@ public final class ProjectAnalyzerTest {
             .build();
     Suggestion stubSuggestion =
         Suggestion.create(
-            Suggestion.Category.WEBP, "Stub Suggestion", /* estimatedBytesSaved= */ null);
+            Suggestion.IssueType.WEBP,
+            Suggestion.Category.WEBP,
+            "Stub Suggestion",
+            /* estimatedBytesSaved= */ null);
     suggester.setEntrySuggestions(
         ImmutableMultimap.of(
             ContextAndEntryPath.create(appContext, "app/src/main/AndroidManifest.xml"),
@@ -119,7 +135,7 @@ public final class ProjectAnalyzerTest {
 
   @Test
   public void analyze_ignoreNonProjectFiles() throws Exception {
-    ProjectAnalyzer analyzer = new ProjectAnalyzer(testSuggesters);
+    ProjectAnalyzer analyzer = new ProjectAnalyzer(testProjectSuggesters, testSuggesters);
     File appProject = TestUtils.getTestDataFile(IGNORABLE_FILES_PROJECT);
 
     ImmutableList<Suggestion> suggestions = analyzer.analyze(appProject);

@@ -69,6 +69,7 @@ public class WebpSuggesterTest {
     assertThat(suggestions)
         .containsExactly(
             Suggestion.create(
+                Suggestion.IssueType.WEBP,
                 Suggestion.Category.WEBP,
                 "Convert drawing.png to webp with lossless encoding",
                 23600L));

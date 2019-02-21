@@ -55,10 +55,16 @@ public final class BundleAnalyzerTest {
     BundleContext context = BundleContext.create(/* minSdkVersion= */ 23);
     Suggestion stubSuggestion =
         Suggestion.create(
-            Suggestion.Category.WEBP, "Stub Suggestion", /* estimatedBytesSaved= */ null);
+            Suggestion.IssueType.WEBP,
+            Suggestion.Category.WEBP,
+            "Stub Suggestion",
+            /* estimatedBytesSaved= */ null);
     Suggestion stubArtifactSuggestion =
         Suggestion.create(
-            Suggestion.Category.WEBP, "Stub Artifact Suggestion", /* estimatedBytesSaved= */ null);
+            Suggestion.IssueType.WEBP,
+            Suggestion.Category.WEBP,
+            "Stub Artifact Suggestion",
+            /* estimatedBytesSaved= */ null);
     suggester.setEntrySuggestions(
         ImmutableMultimap.of(
             ContextAndEntryPath.create(context, "base/manifest/AndroidManifest.xml"),

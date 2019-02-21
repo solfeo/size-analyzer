@@ -16,62 +16,74 @@
 
 package com.android.tools.sizereduction.analyzer;
 
-import com.android.tools.sizereduction.analyzer.analyzers.BundleAnalyzer;
-import com.android.tools.sizereduction.analyzer.analyzers.ProjectAnalyzer;
-import com.android.tools.sizereduction.analyzer.suggesters.binaryfiles.LargeFilesSuggester;
-import com.android.tools.sizereduction.analyzer.suggesters.binaryfiles.QuestionableFilesSuggester;
-import com.android.tools.sizereduction.analyzer.suggesters.binaryfiles.WebpSuggester;
-import com.android.tools.sizereduction.analyzer.suggesters.proguard.ProguardSuggester;
-import com.google.common.collect.ImmutableList;
-import java.io.File;
+import com.android.tools.sizereduction.analyzer.AnalyzerMain.VersionProvider;
+import com.android.tools.sizereduction.analyzer.cli.CheckBundle;
+import com.android.tools.sizereduction.analyzer.cli.CheckProject;
 import java.io.IOException;
+import java.util.List;
+import java.util.concurrent.Callable;
+import org.fusesource.jansi.AnsiConsole;
+import picocli.CommandLine;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.HelpCommand;
+import picocli.CommandLine.IVersionProvider;
+import picocli.CommandLine.Option;
 
 /** Main entry point of the size reduction analyzer tool. */
-public class AnalyzerMain {
-  private static final BundleAnalyzer BUNDLE_ANALYZER =
-      new BundleAnalyzer(
-          /* bundleSuggesters= */ ImmutableList.of(new ProguardSuggester()),
-          /* bundleEntrySuggesters= */ ImmutableList.of(
-              new WebpSuggester(), new LargeFilesSuggester(), new QuestionableFilesSuggester()));
-  private static final ProjectAnalyzer PROJECT_ANALYZER =
-      new ProjectAnalyzer(
-          ImmutableList.of(
-              new WebpSuggester(), new LargeFilesSuggester(), new QuestionableFilesSuggester()));
+@Command(
+    name = "analyzer",
+    description = "Entry point for the size reduction analyzer",
+    versionProvider = VersionProvider.class,
+    subcommands = {
+      CheckBundle.class,
+      CheckProject.class,
+      HelpCommand.class,
+    })
+public class AnalyzerMain implements Callable<Void> {
+  private static final String CURRENT_VERSION = "0.1.1-beta1";
 
-  private static final String CHECK_BUNDLE_CMD = "check-bundle";
-  private static final String CHECK_PROJECT_CMD = "check-project";
-  private static final String VERSION_CMD = "version";
+  @Option(
+      names = {"-h", "--help"},
+      usageHelp = true,
+      description = "Shows this help message and exits")
+  @SuppressWarnings("unused") // Used by picocli
+  private boolean helpRequested;
 
-  private static final String CURRENT_VERSION = "0.1.0-alpha1";
+  @Option(
+      names = {"-v", "--version"},
+      versionHelp = true,
+      description = "Prints version information and exits")
+  @SuppressWarnings("unused") // Used by picocli
+  private boolean versionRequested;
 
   public static void main(String[] args) throws IOException {
-    if (args.length < 1) {
-      throw new IllegalStateException(
-          String.format(
-              "Incorrect number of args. Use analyzer [%s|%s] ...",
-              CHECK_BUNDLE_CMD, CHECK_PROJECT_CMD));
+    AnsiConsole.systemInstall();
+    AnalyzerMain main = new AnalyzerMain();
+    main.handleCommand(args);
+  }
+
+  void handleCommand(String[] args) {
+    CommandLine cmd = new CommandLine(this);
+    List<Object> results = cmd.parseWithHandler(new CommandLine.RunAll(), args);
+    int numCommandsExecuted = results == null ? 0 : results.size();
+    if (numCommandsExecuted == 1) {
+      // Main CLI command run without arguments.
+      cmd.usage(System.out);
     }
-    String command = args[0];
-    switch (command) {
-      case CHECK_BUNDLE_CMD:
-        if (args.length < 2) {
-          throw new IllegalStateException("Expected a bundle file as argument.");
-        }
-        File bundleFile = new File(args[1]);
-        BUNDLE_ANALYZER.analyze(bundleFile).forEach(System.out::println);
-        return;
-      case CHECK_PROJECT_CMD:
-        if (args.length < 2) {
-          throw new IllegalStateException("Expected a project directory as argument.");
-        }
-        File projectDir = new File(args[1]);
-        PROJECT_ANALYZER.analyze(projectDir).forEach(System.out::println);
-        return;
-      case VERSION_CMD:
-        System.out.println("Size Analyzer version " + CURRENT_VERSION);
-        return;
-      default:
-        throw new IllegalStateException("Unrecognized command: " + command);
+  }
+
+  @Override
+  public Void call() {
+    // do nothing as the subcommands handle all the logic.
+    return null;
+  }
+
+  /** Required to provide version info to picocli. */
+  static class VersionProvider implements IVersionProvider {
+
+    @Override
+    public String[] getVersion() {
+      return new String[] {CURRENT_VERSION};
     }
   }
 }

@@ -86,7 +86,8 @@ public class QuestionableFilesSuggester implements BundleEntrySuggester, Project
             : fileData.getSize();
     return ImmutableList.of(
         Suggestion.create(
-            Suggestion.Category.QUESTIONABLE_FILE,
+            Suggestion.IssueType.QUESTIONABLE_FILE,
+            Suggestion.Category.LARGE_FILES,
             getSuggestionMessage(fileData.getPathWithinRoot()),
             savingsEstimate));
   }

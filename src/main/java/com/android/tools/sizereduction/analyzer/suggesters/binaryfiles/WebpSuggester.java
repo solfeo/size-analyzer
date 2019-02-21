@@ -94,6 +94,7 @@ public class WebpSuggester implements BundleEntrySuggester, ProjectTreeSuggester
         long estimate = reduction - (reduction % ESTIMATE_PRECISION);
         return ImmutableList.of(
             Suggestion.create(
+                Suggestion.IssueType.WEBP,
                 Suggestion.Category.WEBP,
                 "Convert " + fileData.getPathWithinRoot() + " to webp with lossless encoding",
                 estimate));
