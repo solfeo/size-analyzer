@@ -35,52 +35,62 @@ public final class TerminalInterfaceTest {
               Suggestion.IssueType.WEBP,
               Suggestion.Category.WEBP,
               "Suggestion 1",
-              /* estimatedBytesSaved= */ 3L),
+              /* estimatedBytesSaved= */ 3L,
+              /* autoFix= */ null),
           Suggestion.create(
               Suggestion.IssueType.PROGUARD_NO_OBFUSCATION,
               Suggestion.Category.PROGUARD,
               "Suggestion 2",
-              /* estimatedBytesSaved= */ null),
+              /* estimatedBytesSaved= */ null,
+              /* autoFix= */ null),
           Suggestion.create(
               Suggestion.IssueType.LARGE_FILES_DYNAMIC_FEATURE,
               Suggestion.Category.LARGE_FILES,
               "Suggestion 3",
-              /* estimatedBytesSaved= */ 200L),
+              /* estimatedBytesSaved= */ 200L,
+              /* autoFix= */ null),
           Suggestion.create(
               Suggestion.IssueType.WEBP,
               Suggestion.Category.WEBP,
               "Suggestion 4",
-              /* estimatedBytesSaved= */ 15000L),
+              /* estimatedBytesSaved= */ 15000L,
+              /* autoFix= */ null),
           Suggestion.create(
               Suggestion.IssueType.WEBP,
               Suggestion.Category.WEBP,
               "Suggestion 5",
-              /* estimatedBytesSaved= */ null),
+              /* estimatedBytesSaved= */ null,
+              /* autoFix= */ null),
           Suggestion.create(
               Suggestion.IssueType.QUESTIONABLE_FILE,
               Suggestion.Category.LARGE_FILES,
               "Suggestion 6",
-              /* estimatedBytesSaved= */ 3000L),
+              /* estimatedBytesSaved= */ 3000L,
+              /* autoFix= */ null),
           Suggestion.create(
               Suggestion.IssueType.WEBP,
               Suggestion.Category.WEBP,
               "Suggestion 7",
-              /* estimatedBytesSaved= */ 1L),
+              /* estimatedBytesSaved= */ 1L,
+              /* autoFix= */ null),
           Suggestion.create(
               Suggestion.IssueType.PROGUARD_NO_SHRINKING,
               Suggestion.Category.PROGUARD,
               "Suggestion 8",
-              /* estimatedBytesSaved= */ 2L),
+              /* estimatedBytesSaved= */ 2L,
+              /* autoFix= */ null),
           Suggestion.create(
               Suggestion.IssueType.MEDIA_STREAMING,
               Suggestion.Category.LARGE_FILES,
               "Suggestion 9",
-              /* estimatedBytesSaved= */ 100L),
+              /* estimatedBytesSaved= */ 100L,
+              /* autoFix= */ null),
           Suggestion.create(
               Suggestion.IssueType.WEBP,
               Suggestion.Category.WEBP,
               "Suggestion 10",
-              /* estimatedBytesSaved= */ 4000L));
+              /* estimatedBytesSaved= */ 4000L,
+              /* autoFix= */ null));
 
   @Test
   public void filtersCategories() {
@@ -97,27 +107,32 @@ public final class TerminalInterfaceTest {
                 Suggestion.IssueType.WEBP,
                 Suggestion.Category.WEBP,
                 "Suggestion 4",
-                /* estimatedBytesSaved= */ 15000L),
+                /* estimatedBytesSaved= */ 15000L,
+                /* autoFix= */ null),
             Suggestion.create(
                 Suggestion.IssueType.WEBP,
                 Suggestion.Category.WEBP,
                 "Suggestion 10",
-                /* estimatedBytesSaved= */ 4000L),
+                /* estimatedBytesSaved= */ 4000L,
+                /* autoFix= */ null),
             Suggestion.create(
                 Suggestion.IssueType.WEBP,
                 Suggestion.Category.WEBP,
                 "Suggestion 1",
-                /* estimatedBytesSaved= */ 3L),
+                /* estimatedBytesSaved= */ 3L,
+                /* autoFix= */ null),
             Suggestion.create(
                 Suggestion.IssueType.WEBP,
                 Suggestion.Category.WEBP,
                 "Suggestion 7",
-                /* estimatedBytesSaved= */ 1L),
+                /* estimatedBytesSaved= */ 1L,
+                /* autoFix= */ null),
             Suggestion.create(
                 Suggestion.IssueType.WEBP,
                 Suggestion.Category.WEBP,
                 "Suggestion 5",
-                /* estimatedBytesSaved= */ null))
+                /* estimatedBytesSaved= */ null,
+                /* autoFix= */ null))
         .inOrder();
   }
 
@@ -136,27 +151,32 @@ public final class TerminalInterfaceTest {
                 Suggestion.IssueType.WEBP,
                 Suggestion.Category.WEBP,
                 "Suggestion 4",
-                /* estimatedBytesSaved= */ 15000L),
+                /* estimatedBytesSaved= */ 15000L,
+                /* autoFix= */ null),
             Suggestion.create(
                 Suggestion.IssueType.WEBP,
                 Suggestion.Category.WEBP,
                 "Suggestion 10",
-                /* estimatedBytesSaved= */ 4000L),
+                /* estimatedBytesSaved= */ 4000L,
+                /* autoFix= */ null),
             Suggestion.create(
                 Suggestion.IssueType.WEBP,
                 Suggestion.Category.WEBP,
                 "Suggestion 1",
-                /* estimatedBytesSaved= */ 3L),
+                /* estimatedBytesSaved= */ 3L,
+                /* autoFix= */ null),
             Suggestion.create(
                 Suggestion.IssueType.WEBP,
                 Suggestion.Category.WEBP,
                 "Suggestion 7",
-                /* estimatedBytesSaved= */ 1L),
+                /* estimatedBytesSaved= */ 1L,
+                /* autoFix= */ null),
             Suggestion.create(
                 Suggestion.IssueType.WEBP,
                 Suggestion.Category.WEBP,
                 "Suggestion 5",
-                /* estimatedBytesSaved= */ null))
+                /* estimatedBytesSaved= */ null,
+                /* autoFix= */ null))
         .inOrder();
     assertThat(categorizedSuggestions)
         .valuesForKey(Suggestion.Category.LARGE_FILES)
@@ -165,17 +185,20 @@ public final class TerminalInterfaceTest {
                 Suggestion.IssueType.QUESTIONABLE_FILE,
                 Suggestion.Category.LARGE_FILES,
                 "Suggestion 6",
-                /* estimatedBytesSaved= */ 3000L),
+                /* estimatedBytesSaved= */ 3000L,
+                /* autoFix= */ null),
             Suggestion.create(
                 Suggestion.IssueType.LARGE_FILES_DYNAMIC_FEATURE,
                 Suggestion.Category.LARGE_FILES,
                 "Suggestion 3",
-                /* estimatedBytesSaved= */ 200L),
+                /* estimatedBytesSaved= */ 200L,
+                /* autoFix= */ null),
             Suggestion.create(
                 Suggestion.IssueType.MEDIA_STREAMING,
                 Suggestion.Category.LARGE_FILES,
                 "Suggestion 9",
-                /* estimatedBytesSaved= */ 100L))
+                /* estimatedBytesSaved= */ 100L,
+                /* autoFix= */ null))
         .inOrder();
     assertThat(categorizedSuggestions)
         .valuesForKey(Suggestion.Category.PROGUARD)
@@ -184,12 +207,14 @@ public final class TerminalInterfaceTest {
                 Suggestion.IssueType.PROGUARD_NO_SHRINKING,
                 Suggestion.Category.PROGUARD,
                 "Suggestion 8",
-                /* estimatedBytesSaved= */ 2L),
+                /* estimatedBytesSaved= */ 2L,
+                /* autoFix= */ null),
             Suggestion.create(
                 Suggestion.IssueType.PROGUARD_NO_OBFUSCATION,
                 Suggestion.Category.PROGUARD,
                 "Suggestion 2",
-                /* estimatedBytesSaved= */ null))
+                /* estimatedBytesSaved= */ null,
+                /* autoFix= */ null))
         .inOrder();
   }
 

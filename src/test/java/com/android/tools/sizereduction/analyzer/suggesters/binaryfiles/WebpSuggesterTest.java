@@ -20,10 +20,11 @@ import static com.android.tools.sizereduction.analyzer.suggesters.binaryfiles.We
 import static com.android.tools.sizereduction.analyzer.utils.TestUtils.getTestDataFile;
 import static com.google.common.truth.Truth.assertThat;
 
-import com.android.tools.sizereduction.analyzer.analyzers.FileData;
-import com.android.tools.sizereduction.analyzer.analyzers.SystemFileData;
-import com.android.tools.sizereduction.analyzer.analyzers.testing.FakeFileData;
 import com.android.tools.sizereduction.analyzer.model.BundleContext;
+import com.android.tools.sizereduction.analyzer.model.FileData;
+import com.android.tools.sizereduction.analyzer.model.GradleContext;
+import com.android.tools.sizereduction.analyzer.model.SystemFileData;
+import com.android.tools.sizereduction.analyzer.model.testing.FakeFileData;
 import com.android.tools.sizereduction.analyzer.suggesters.Suggestion;
 import com.android.tools.sizereduction.analyzer.suggesters.binaryfiles.testing.FakeWebpConverter;
 import java.io.File;
@@ -58,13 +59,18 @@ public class WebpSuggesterTest {
   }
 
   @Test
-  public void losslessReducibleDrawing_supportedApiLevel_reducesSize() {
+  public void losslessReducibleDrawing_supportedApiLevel_reducesSize() throws Exception {
+    FakeWebpConverter fakeConverter = new FakeWebpConverter();
+    WebpSuggester webpSuggester = new WebpSuggester(fakeConverter);
+    int webpSize = (int) (DRAWING_FILE_SIZE - WebpSuggester.SIZE_REDUCTION_THRESHOLD_BYTES - 100);
+    byte[] webpBytes = new byte[webpSize];
+    fakeConverter.setFakeData(webpBytes);
     SystemFileData systemFileData =
         new SystemFileData(getTestDataFile(PNG_DRAWING), Paths.get("drawing.png"));
+
     List<Suggestion> suggestions =
-        new WebpSuggester()
-            .processBundleZipEntry(
-                BundleContext.create(MIN_SDK_VERSION_SUPPORTING_LOSSLESS_WEBP), systemFileData);
+        webpSuggester.processProjectEntry(
+            GradleContext.create(MIN_SDK_VERSION_SUPPORTING_LOSSLESS_WEBP, false), systemFileData);
 
     assertThat(suggestions)
         .containsExactly(
@@ -72,7 +78,8 @@ public class WebpSuggesterTest {
                 Suggestion.IssueType.WEBP,
                 Suggestion.Category.WEBP,
                 "Convert drawing.png to webp with lossless encoding",
-                23600L));
+                200L,
+                new WebpAutoFix(systemFileData.getSystemPath())));
   }
 
   @Test

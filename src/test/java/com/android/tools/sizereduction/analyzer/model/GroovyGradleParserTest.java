@@ -36,6 +36,7 @@ public final class GroovyGradleParserTest {
       "projects/simple_bundle_app/dynamic_feature/build.gradle";
   private static final String PROGUARD_BUILD_FILE = "proguard_configs.build.gradle";
   private static final String VARIABLE_MINSDK_BUILD_FILE = "variable_minSdkVersion.build.gradle";
+  private static final String COMPLEX_BUILD_FILE = "complex.build.gradle";
 
   @Test
   public void parsesPluginType_Application() throws Exception {
@@ -103,6 +104,31 @@ public final class GroovyGradleParserTest {
                 .setObfuscationEnabled(true)
                 .build());
 
+    assertThat(context.getProguardConfigs()).isEqualTo(expectedMap);
+  }
+
+  @Test
+  public void parsesComplexBuildFile() throws Exception {
+    File buildFile = TestUtils.getTestDataFile(COMPLEX_BUILD_FILE);
+    String content = Files.asCharSource(buildFile, UTF_8).read();
+    GradleContext context = GroovyGradleParser.parseGradleBuildFile(content, 1).build();
+    ImmutableMap<String, ProguardConfig> expectedMap =
+        ImmutableMap.of(
+            "release",
+            ProguardConfig.builder()
+                .setMinifyEnabled(true)
+                .setHasProguardRules(true)
+                .setObfuscationEnabled(true)
+                .build(),
+            "debug",
+            ProguardConfig.builder()
+                .setMinifyEnabled(true)
+                .setHasProguardRules(true)
+                .setObfuscationEnabled(true)
+                .build());
+
+    assertThat(context.getMinSdkVersion()).isEqualTo(19);
+    assertThat(context.getPluginType()).isEqualTo(GradleContext.PluginType.APPLICATION);
     assertThat(context.getProguardConfigs()).isEqualTo(expectedMap);
   }
 

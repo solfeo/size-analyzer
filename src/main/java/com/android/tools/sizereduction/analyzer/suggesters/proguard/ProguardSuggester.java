@@ -66,7 +66,8 @@ public final class ProguardSuggester implements BundleSuggester, ProjectSuggeste
               IssueType.PROGUARD_NO_MAP,
               Category.PROGUARD,
               NO_MAP_SUGGESTION_MESSAGE,
-              /* estimatedBytesSaved= */ null));
+              /* estimatedBytesSaved= */ null,
+              /* autoFix= */ null));
     }
 
     // Deobfuscation map present.
@@ -77,7 +78,8 @@ public final class ProguardSuggester implements BundleSuggester, ProjectSuggeste
               IssueType.PROGUARD_EMPTY_MAP,
               Category.PROGUARD,
               EMPTY_MAP_SUGGESTION_MESSAGE,
-              /* estimatedBytesSaved= */ null));
+              /* estimatedBytesSaved= */ null,
+              /* autoFix= */ null));
     }
 
     // Everything is fine with the map, no suggestions.
@@ -101,12 +103,14 @@ public final class ProguardSuggester implements BundleSuggester, ProjectSuggeste
               IssueType.PROGUARD_NO_SHRINKING,
               Category.PROGUARD,
               NO_CODE_SHRINKING,
-              /* estimatedBytesSaved= */ null),
+              /* estimatedBytesSaved= */ null,
+              /* autoFix= */ null),
           Suggestion.create(
               IssueType.PROGUARD_NO_OBFUSCATION,
               Category.PROGUARD,
               NO_OBFUSCATION,
-              /* estimatedBytesSaved= */ null));
+              /* estimatedBytesSaved= */ null,
+              /* autoFix= */ null));
     }
     ImmutableList.Builder<Suggestion> suggestions = ImmutableList.<Suggestion>builder();
     if (!proguardConfig.getMinifyEnabled()) {
@@ -115,7 +119,8 @@ public final class ProguardSuggester implements BundleSuggester, ProjectSuggeste
               IssueType.PROGUARD_NO_SHRINKING,
               Category.PROGUARD,
               NO_CODE_SHRINKING,
-              /* estimatedBytesSaved= */ null));
+              /* estimatedBytesSaved= */ null,
+              /* autoFix= */ null));
     }
     if (!proguardConfig.getObfuscationEnabled()) {
       suggestions.add(
@@ -123,7 +128,8 @@ public final class ProguardSuggester implements BundleSuggester, ProjectSuggeste
               IssueType.PROGUARD_NO_OBFUSCATION,
               Category.PROGUARD,
               NO_OBFUSCATION,
-              /* estimatedBytesSaved= */ null));
+              /* estimatedBytesSaved= */ null,
+              /* autoFix= */ null));
     }
     return suggestions.build();
   }

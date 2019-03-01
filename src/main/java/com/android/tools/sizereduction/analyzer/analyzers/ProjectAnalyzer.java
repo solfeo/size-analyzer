@@ -18,6 +18,7 @@ package com.android.tools.sizereduction.analyzer.analyzers;
 
 import com.android.tools.sizereduction.analyzer.model.GradleContext;
 import com.android.tools.sizereduction.analyzer.model.Project;
+import com.android.tools.sizereduction.analyzer.model.SystemFileData;
 import com.android.tools.sizereduction.analyzer.suggesters.ProjectSuggester;
 import com.android.tools.sizereduction.analyzer.suggesters.ProjectTreeSuggester;
 import com.android.tools.sizereduction.analyzer.suggesters.Suggestion;

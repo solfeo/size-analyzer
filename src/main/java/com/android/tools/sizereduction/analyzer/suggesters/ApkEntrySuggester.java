@@ -16,8 +16,8 @@
 
 package com.android.tools.sizereduction.analyzer.suggesters;
 
-import com.android.tools.sizereduction.analyzer.analyzers.FileData;
 import com.android.tools.sizereduction.analyzer.model.Context;
+import com.android.tools.sizereduction.analyzer.model.FileData;
 import com.google.common.collect.ImmutableList;
 
 /** Interface for generating suggestions for APK ZIP entries. */

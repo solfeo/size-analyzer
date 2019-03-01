@@ -16,10 +16,10 @@
 
 package com.android.tools.sizereduction.analyzer.suggesters.binaryfiles;
 
-import com.android.tools.sizereduction.analyzer.analyzers.FileData;
-import com.android.tools.sizereduction.analyzer.analyzers.ZipFileData;
 import com.android.tools.sizereduction.analyzer.model.BundleContext;
+import com.android.tools.sizereduction.analyzer.model.FileData;
 import com.android.tools.sizereduction.analyzer.model.GradleContext;
+import com.android.tools.sizereduction.analyzer.model.ZipFileData;
 import com.android.tools.sizereduction.analyzer.suggesters.BundleEntrySuggester;
 import com.android.tools.sizereduction.analyzer.suggesters.ProjectTreeSuggester;
 import com.android.tools.sizereduction.analyzer.suggesters.Suggestion;
@@ -89,7 +89,8 @@ public class QuestionableFilesSuggester implements BundleEntrySuggester, Project
             Suggestion.IssueType.QUESTIONABLE_FILE,
             Suggestion.Category.LARGE_FILES,
             getSuggestionMessage(fileData.getPathWithinRoot()),
-            savingsEstimate));
+            savingsEstimate,
+            /* autoFix= */ null));
   }
 
   @VisibleForTesting

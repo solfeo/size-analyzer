@@ -16,7 +16,7 @@
 
 package com.android.tools.sizereduction.analyzer.suggesters;
 
-import com.android.tools.sizereduction.analyzer.analyzers.FileData;
+import com.android.tools.sizereduction.analyzer.model.FileData;
 import com.android.tools.sizereduction.analyzer.model.GradleContext;
 import com.google.common.collect.ImmutableList;
 

@@ -58,13 +58,15 @@ public final class BundleAnalyzerTest {
             Suggestion.IssueType.WEBP,
             Suggestion.Category.WEBP,
             "Stub Suggestion",
-            /* estimatedBytesSaved= */ null);
+            /* estimatedBytesSaved= */ null,
+            /* autoFix= */ null);
     Suggestion stubArtifactSuggestion =
         Suggestion.create(
             Suggestion.IssueType.WEBP,
             Suggestion.Category.WEBP,
             "Stub Artifact Suggestion",
-            /* estimatedBytesSaved= */ null);
+            /* estimatedBytesSaved= */ null,
+            /* autoFix= */ null);
     suggester.setEntrySuggestions(
         ImmutableMultimap.of(
             ContextAndEntryPath.create(context, "base/manifest/AndroidManifest.xml"),

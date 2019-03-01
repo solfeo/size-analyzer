@@ -14,7 +14,7 @@
  * limitations under the License
  */
 
-package com.android.tools.sizereduction.analyzer.analyzers;
+package com.android.tools.sizereduction.analyzer.model;
 
 import static com.google.common.truth.Truth.assertThat;
 

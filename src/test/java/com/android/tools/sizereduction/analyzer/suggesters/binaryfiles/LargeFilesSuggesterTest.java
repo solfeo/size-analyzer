@@ -18,10 +18,10 @@ package com.android.tools.sizereduction.analyzer.suggesters.binaryfiles;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import com.android.tools.sizereduction.analyzer.analyzers.FileData;
-import com.android.tools.sizereduction.analyzer.analyzers.testing.FakeFileData;
 import com.android.tools.sizereduction.analyzer.model.BundleContext;
+import com.android.tools.sizereduction.analyzer.model.FileData;
 import com.android.tools.sizereduction.analyzer.model.GradleContext;
+import com.android.tools.sizereduction.analyzer.model.testing.FakeFileData;
 import com.android.tools.sizereduction.analyzer.suggesters.Suggestion;
 import java.util.List;
 import org.junit.Test;
@@ -89,14 +89,16 @@ public class LargeFilesSuggesterTest {
                 Suggestion.IssueType.MEDIA_STREAMING,
                 Suggestion.Category.LARGE_FILES,
                 "Stream media file " + MP4_VIDEO + " from the internet to avoid bundling in apk",
-                MEDIA_FILE_SIZE),
+                MEDIA_FILE_SIZE,
+                /* autoFix= */ null),
             Suggestion.create(
                 Suggestion.IssueType.LARGE_FILES_DYNAMIC_FEATURE,
                 Suggestion.Category.LARGE_FILES,
                 "Place large file "
                     + MP4_VIDEO
                     + " inside an on demand dynamic-feature to avoid bundling in apk",
-                MEDIA_FILE_SIZE));
+                MEDIA_FILE_SIZE,
+                /* autoFix= */ null));
   }
 
   @Test
@@ -113,7 +115,8 @@ public class LargeFilesSuggesterTest {
                 "Place large file "
                     + BIN_FILE
                     + " inside an on demand dynamic-feature to avoid bundling in apk",
-                LARGE_FILE_SIZE));
+                LARGE_FILE_SIZE,
+                /* autoFix= */ null));
   }
 
   @Test
@@ -130,6 +133,7 @@ public class LargeFilesSuggesterTest {
                 "Place large file "
                     + PROJECT_BIN_FILE
                     + " inside an on demand dynamic-feature to avoid bundling in apk",
-                LARGE_FILE_SIZE));
+                LARGE_FILE_SIZE,
+                /* autoFix= */ null));
   }
 }

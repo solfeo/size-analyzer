@@ -18,10 +18,10 @@ package com.android.tools.sizereduction.analyzer.suggesters.binaryfiles;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import com.android.tools.sizereduction.analyzer.analyzers.FileData;
-import com.android.tools.sizereduction.analyzer.analyzers.testing.FakeFileData;
 import com.android.tools.sizereduction.analyzer.model.BundleContext;
+import com.android.tools.sizereduction.analyzer.model.FileData;
 import com.android.tools.sizereduction.analyzer.model.GradleContext;
+import com.android.tools.sizereduction.analyzer.model.testing.FakeFileData;
 import com.android.tools.sizereduction.analyzer.suggesters.Suggestion;
 import java.nio.file.Paths;
 import java.util.List;
@@ -195,7 +195,8 @@ public class QuestionableFilesSuggesterTest {
                 Suggestion.IssueType.QUESTIONABLE_FILE,
                 Suggestion.Category.LARGE_FILES,
                 QuestionableFilesSuggester.getSuggestionMessage(Paths.get(filename)),
-                LARGE_FILE_SIZE));
+                LARGE_FILE_SIZE,
+                /* autoFix= */ null));
   }
 
   private void testInvalidProjectFile(String filename) {
@@ -209,6 +210,7 @@ public class QuestionableFilesSuggesterTest {
                 Suggestion.IssueType.QUESTIONABLE_FILE,
                 Suggestion.Category.LARGE_FILES,
                 QuestionableFilesSuggester.getSuggestionMessage(Paths.get(filename)),
-                LARGE_FILE_SIZE));
+                LARGE_FILE_SIZE,
+                /* autoFix= */ null));
   }
 }

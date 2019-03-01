@@ -14,9 +14,9 @@
  * limitations under the License
  */
 
-package com.android.tools.sizereduction.analyzer.analyzers.testing;
+package com.android.tools.sizereduction.analyzer.model.testing;
 
-import com.android.tools.sizereduction.analyzer.analyzers.FileData;
+import com.android.tools.sizereduction.analyzer.model.FileData;
 import com.google.auto.value.AutoValue;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;

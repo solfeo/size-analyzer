@@ -14,7 +14,7 @@
  * limitations under the License
  */
 
-package com.android.tools.sizereduction.analyzer.analyzers;
+package com.android.tools.sizereduction.analyzer.model;
 
 import com.google.common.base.Ascii;
 import com.google.common.io.MoreFiles;

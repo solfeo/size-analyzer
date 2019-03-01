@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.codehaus.groovy.ast.ASTNode;
+import org.codehaus.groovy.ast.ClassNode;
 import org.codehaus.groovy.ast.CodeVisitorSupport;
 import org.codehaus.groovy.ast.builder.AstBuilder;
 import org.codehaus.groovy.ast.expr.ArgumentListExpression;
@@ -37,6 +38,7 @@ import org.codehaus.groovy.ast.expr.NamedArgumentListExpression;
 import org.codehaus.groovy.ast.expr.PropertyExpression;
 import org.codehaus.groovy.ast.expr.TupleExpression;
 import org.codehaus.groovy.ast.expr.VariableExpression;
+import org.codehaus.groovy.control.CompilePhase;
 
 /**
  * This class parses a build.gradle file. It currently extracts the minSdkVersion along with the
@@ -62,10 +64,16 @@ public final class GroovyGradleParser extends CodeVisitorSupport {
 
   public static GradleContext.Builder parseGradleBuildFile(
       String content, int defaultMinSdkVersion) {
-    List<ASTNode> astNodes = new AstBuilder().buildFromString(content);
+    // We need to have an abstract syntax tree, which is what the conversion phase produces,
+    // Anything more will try to semantically understand the groovy code.
+    List<ASTNode> astNodes = new AstBuilder().buildFromString(CompilePhase.CONVERSION, content);
     GroovyGradleParser parser = new GroovyGradleParser(content, defaultMinSdkVersion);
 
     for (ASTNode node : astNodes) {
+      if (node instanceof ClassNode) {
+        // class nodes do not implement the visit method, and will throw a runtime exception.
+        continue;
+      }
       node.visit(parser);
     }
     return parser.getGradleContextBuilder();
@@ -184,6 +192,9 @@ public final class GroovyGradleParser extends CodeVisitorSupport {
    */
   private void checkDslProperty(MethodCallExpression call, String parent, String parentParent) {
     String property = call.getMethodAsString();
+    if (property == null) {
+      return;
+    }
     String value = getText(call.getArguments(), content);
     checkDslPropertyAssignment(property, value, parent, parentParent);
   }
@@ -201,7 +212,6 @@ public final class GroovyGradleParser extends CodeVisitorSupport {
    */
   private void checkDslPropertyAssignment(
       String property, String value, String parent, String parentParent) {
-
     String buildType =
         "buildTypes".equals(parentParent) ? parent : ProguardConfig.DEFAULT_CONFIG_NAME;
     ProguardConfig.Builder proguardConfig =

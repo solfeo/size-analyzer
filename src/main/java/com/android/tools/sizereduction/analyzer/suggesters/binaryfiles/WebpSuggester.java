@@ -16,12 +16,13 @@
 
 package com.android.tools.sizereduction.analyzer.suggesters.binaryfiles;
 
-import static com.android.tools.sizereduction.analyzer.analyzers.FileData.getFileExtension;
+import static com.android.tools.sizereduction.analyzer.model.FileData.getFileExtension;
 
-import com.android.tools.sizereduction.analyzer.analyzers.FileData;
 import com.android.tools.sizereduction.analyzer.model.BundleContext;
 import com.android.tools.sizereduction.analyzer.model.Context;
+import com.android.tools.sizereduction.analyzer.model.FileData;
 import com.android.tools.sizereduction.analyzer.model.GradleContext;
+import com.android.tools.sizereduction.analyzer.model.SystemFileData;
 import com.android.tools.sizereduction.analyzer.suggesters.BundleEntrySuggester;
 import com.android.tools.sizereduction.analyzer.suggesters.ProjectTreeSuggester;
 import com.android.tools.sizereduction.analyzer.suggesters.Suggestion;
@@ -81,7 +82,8 @@ public class WebpSuggester implements BundleEntrySuggester, ProjectTreeSuggester
       BufferedImage bufferedImage = safelyParseImage(countingStream);
 
       long oldSize = countingStream.getCount();
-      long newSize = webpConverter.encodeLosslessWebp(bufferedImage).length;
+      byte[] webpBytes = webpConverter.encodeLosslessWebp(bufferedImage);
+      long newSize = webpBytes.length;
       long reduction = oldSize - newSize;
 
       if (reduction >= SIZE_REDUCTION_THRESHOLD_BYTES) {
@@ -92,12 +94,18 @@ public class WebpSuggester implements BundleEntrySuggester, ProjectTreeSuggester
         // nearest
         // round number.
         long estimate = reduction - (reduction % ESTIMATE_PRECISION);
+        WebpAutoFix autoFix = null;
+        if (fileData instanceof SystemFileData) {
+          autoFix = new WebpAutoFix(((SystemFileData) fileData).getSystemPath());
+        }
+
         return ImmutableList.of(
             Suggestion.create(
                 Suggestion.IssueType.WEBP,
                 Suggestion.Category.WEBP,
                 "Convert " + fileData.getPathWithinRoot() + " to webp with lossless encoding",
-                estimate));
+                estimate,
+                autoFix));
       } else {
         return ImmutableList.of();
       }
@@ -106,7 +114,7 @@ public class WebpSuggester implements BundleEntrySuggester, ProjectTreeSuggester
     }
   }
 
-  private static BufferedImage safelyParseImage(InputStream inputStream) {
+  static BufferedImage safelyParseImage(InputStream inputStream) {
     try {
       return Imaging.getBufferedImage(inputStream);
     } catch (IOException | ImageReadException e) {

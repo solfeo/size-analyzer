@@ -14,43 +14,39 @@
  * limitations under the License
  */
 
-package com.android.tools.sizereduction.analyzer.analyzers;
+package com.android.tools.sizereduction.analyzer.model;
 
 import static com.google.common.base.Preconditions.checkState;
 
 import com.google.errorprone.annotations.MustBeClosed;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
-/** Supplies the file data for a file on the file system. This is not threadsafe. */
-public final class SystemFileData implements FileData {
+/** Supplies the file data for a particular entry in a zipFile. This is not threadsafe. */
+public final class ZipFileData implements FileData {
 
-  private final File file;
-  private final Path pathWithinRoot;
-  private final Path pathWithinModule;
+  private final ZipFile zipFile;
+  private final ZipEntry entry;
   private InputStream inputStream;
+  private Path cachedPathWithinModule;
 
-  public SystemFileData(File file, Path pathWithinRoot) {
-    this(file, pathWithinRoot, pathWithinRoot);
+  public ZipFileData(ZipFile zipFile, ZipEntry entry) {
+    this.zipFile = zipFile;
+    this.entry = entry;
   }
 
-  public SystemFileData(File file, Path pathWithinRoot, Path pathWithinModule) {
-    this.file = file;
-    this.pathWithinRoot = pathWithinRoot;
-    this.pathWithinModule = pathWithinModule;
-  }
-
-  /** Returns the input stream for this file. */
+  /** Returns the input stream for this zipFile. */
   @Override
   @MustBeClosed
   public InputStream getInputStream() {
     checkState(inputStream == null, "input stream was already supplied and opened");
 
     try {
-      inputStream = new FileInputStream(file);
+      inputStream = zipFile.getInputStream(entry);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
@@ -60,17 +56,34 @@ public final class SystemFileData implements FileData {
   /** Returns the path for this file based on the root of the project/bundle/apk. */
   @Override
   public Path getPathWithinRoot() {
-    return pathWithinRoot;
+    return Paths.get(entry.getName());
   }
 
   @Override
   public Path getPathWithinModule() {
-    return pathWithinModule;
+    if (cachedPathWithinModule != null) {
+      return cachedPathWithinModule;
+    }
+
+    Path fullPath = getPathWithinRoot();
+    if (fullPath.getNameCount() <= 1
+        || fullPath.startsWith("BUNDLE-METADATA")
+        || fullPath.startsWith("META-INF")) {
+      cachedPathWithinModule = fullPath;
+    } else {
+      cachedPathWithinModule = fullPath.subpath(1, fullPath.getNameCount());
+    }
+    return cachedPathWithinModule;
   }
 
-  /** Returns the size of this file. */
+  /** Returns the uncompressed size of this zip entry. */
   @Override
   public long getSize() {
-    return file.length();
+    return entry.getSize();
+  }
+
+  /** Returns the compressed size of this zip entry. */
+  public long getCompressedSize() {
+    return entry.getCompressedSize();
   }
 }

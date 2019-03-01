@@ -16,13 +16,13 @@
 
 package com.android.tools.sizereduction.analyzer.suggesters.binaryfiles;
 
-import static com.android.tools.sizereduction.analyzer.analyzers.FileData.getFileExtension;
+import static com.android.tools.sizereduction.analyzer.model.FileData.getFileExtension;
 
-import com.android.tools.sizereduction.analyzer.analyzers.FileData;
-import com.android.tools.sizereduction.analyzer.analyzers.ZipFileData;
 import com.android.tools.sizereduction.analyzer.model.BundleContext;
 import com.android.tools.sizereduction.analyzer.model.Context;
+import com.android.tools.sizereduction.analyzer.model.FileData;
 import com.android.tools.sizereduction.analyzer.model.GradleContext;
+import com.android.tools.sizereduction.analyzer.model.ZipFileData;
 import com.android.tools.sizereduction.analyzer.suggesters.BundleEntrySuggester;
 import com.android.tools.sizereduction.analyzer.suggesters.ProjectTreeSuggester;
 import com.android.tools.sizereduction.analyzer.suggesters.Suggestion;
@@ -86,7 +86,8 @@ public class LargeFilesSuggester implements BundleEntrySuggester, ProjectTreeSug
               "Place large file "
                   + fileData.getPathWithinRoot()
                   + " inside an on demand dynamic-feature to avoid bundling in apk",
-              size));
+              size,
+              /* autoFix= */ null));
     }
     if (isMediaFile) {
       suggestions.add(
@@ -96,7 +97,8 @@ public class LargeFilesSuggester implements BundleEntrySuggester, ProjectTreeSug
               "Stream media file "
                   + fileData.getPathWithinRoot()
                   + " from the internet to avoid bundling in apk",
-              size));
+              size,
+              /* autoFix= */ null));
     }
     return suggestions.build();
   }

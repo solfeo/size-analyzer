@@ -14,15 +14,20 @@
  * limitations under the License
  */
 
-package com.android.tools.sizereduction.analyzer.suggesters;
+package com.android.tools.sizereduction.analyzer.model;
 
-import com.android.tools.sizereduction.analyzer.model.BundleContext;
-import com.android.tools.sizereduction.analyzer.model.FileData;
-import com.google.common.collect.ImmutableList;
+import static com.google.common.truth.Truth.assertThat;
 
-/** Interface for generating suggestions for App Bundle ZIP entries. */
-public interface BundleEntrySuggester {
+import java.nio.file.Paths;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
-  /** Generates suggestions for a bundle ZIP file entry. */
-  ImmutableList<Suggestion> processBundleZipEntry(BundleContext context, FileData entry);
+@RunWith(JUnit4.class)
+public class FileDataTest {
+  @Test
+  public void getFileExtension() throws Exception {
+    FileData zfData = new SystemFileData(null, Paths.get("/base/test.JPG"));
+    assertThat(FileData.getFileExtension(zfData)).isEqualTo("jpg");
+  }
 }

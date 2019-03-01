@@ -16,9 +16,9 @@
 
 package com.android.tools.sizereduction.analyzer.suggesters.testing;
 
-import com.android.tools.sizereduction.analyzer.analyzers.FileData;
 import com.android.tools.sizereduction.analyzer.model.BundleContext;
 import com.android.tools.sizereduction.analyzer.model.Context;
+import com.android.tools.sizereduction.analyzer.model.FileData;
 import com.android.tools.sizereduction.analyzer.model.GradleContext;
 import com.android.tools.sizereduction.analyzer.suggesters.ApkEntrySuggester;
 import com.android.tools.sizereduction.analyzer.suggesters.ApkSuggester;

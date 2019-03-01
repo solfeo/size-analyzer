@@ -23,6 +23,7 @@ import com.android.tools.build.bundletool.model.AppBundle;
 import com.android.tools.build.bundletool.model.BundleModule;
 import com.android.tools.build.bundletool.model.BundleModuleName;
 import com.android.tools.sizereduction.analyzer.model.BundleContext;
+import com.android.tools.sizereduction.analyzer.model.ZipFileData;
 import com.android.tools.sizereduction.analyzer.suggesters.BundleEntrySuggester;
 import com.android.tools.sizereduction.analyzer.suggesters.BundleSuggester;
 import com.android.tools.sizereduction.analyzer.suggesters.Suggestion;

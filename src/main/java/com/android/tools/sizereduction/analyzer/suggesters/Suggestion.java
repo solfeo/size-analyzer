@@ -42,8 +42,12 @@ public abstract class Suggestion {
   }
 
   public static Suggestion create(
-      IssueType issueType, Category category, String message, @Nullable Long estimatedBytesSaved) {
-    return new AutoValue_Suggestion(issueType, category, message, estimatedBytesSaved);
+      IssueType issueType,
+      Category category,
+      String message,
+      @Nullable Long estimatedBytesSaved,
+      @Nullable AutoFix autoFix) {
+    return new AutoValue_Suggestion(issueType, category, message, estimatedBytesSaved, autoFix);
   }
 
   public abstract IssueType getIssueType();
@@ -54,6 +58,9 @@ public abstract class Suggestion {
 
   @Nullable
   public abstract Long getEstimatedBytesSaved();
+
+  @Nullable
+  public abstract AutoFix getAutoFix();
 
   @Override
   public final String toString() {

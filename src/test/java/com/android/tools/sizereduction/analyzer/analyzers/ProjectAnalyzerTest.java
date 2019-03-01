@@ -79,13 +79,15 @@ public final class ProjectAnalyzerTest {
             Suggestion.IssueType.WEBP,
             Suggestion.Category.WEBP,
             "Stub Suggestion",
-            /* estimatedBytesSaved= */ null);
+            /* estimatedBytesSaved= */ null,
+            /* autoFix= */ null);
     Suggestion stubArtifactSuggestion =
         Suggestion.create(
             Suggestion.IssueType.PROGUARD_NO_OBFUSCATION,
             Suggestion.Category.PROGUARD,
             "Stub Artifact Suggestion",
-            /* estimatedBytesSaved= */ null);
+            /* estimatedBytesSaved= */ null,
+            /* autoFix= */ null);
     suggester.setArtifactSuggestions(ImmutableList.of(stubArtifactSuggestion));
     suggester.setEntrySuggestions(
         ImmutableMultimap.of(
@@ -120,7 +122,8 @@ public final class ProjectAnalyzerTest {
             Suggestion.IssueType.WEBP,
             Suggestion.Category.WEBP,
             "Stub Suggestion",
-            /* estimatedBytesSaved= */ null);
+            /* estimatedBytesSaved= */ null,
+            /* autoFix= */ null);
     suggester.setEntrySuggestions(
         ImmutableMultimap.of(
             ContextAndEntryPath.create(appContext, "app/src/main/AndroidManifest.xml"),
