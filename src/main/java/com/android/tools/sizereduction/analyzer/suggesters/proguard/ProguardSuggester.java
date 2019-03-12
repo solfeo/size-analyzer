@@ -16,6 +16,8 @@
 
 package com.android.tools.sizereduction.analyzer.suggesters.proguard;
 
+import com.android.tools.build.bundletool.model.AppBundle;
+import com.android.tools.sizereduction.analyzer.SuggestionPayload.Payload;
 import com.android.tools.sizereduction.analyzer.model.BundleContext;
 import com.android.tools.sizereduction.analyzer.model.GradleContext;
 import com.android.tools.sizereduction.analyzer.model.ProguardConfig;
@@ -57,14 +59,16 @@ public final class ProguardSuggester implements BundleSuggester, ProjectSuggeste
           + "space.";
 
   @Override
-  public ImmutableList<Suggestion> processBundle(BundleContext context, ZipFile bundle) {
-    ZipEntry proguardEntry = bundle.getEntry(PROGUARD_MAP);
+  public ImmutableList<Suggestion> processBundle(
+      BundleContext context, AppBundle bundle, ZipFile bundleZip) {
+    ZipEntry proguardEntry = bundleZip.getEntry(PROGUARD_MAP);
 
     if (proguardEntry == null) {
       return ImmutableList.of(
           Suggestion.create(
               IssueType.PROGUARD_NO_MAP,
               Category.PROGUARD,
+              Payload.getDefaultInstance(),
               NO_MAP_SUGGESTION_MESSAGE,
               /* estimatedBytesSaved= */ null,
               /* autoFix= */ null));
@@ -77,6 +81,7 @@ public final class ProguardSuggester implements BundleSuggester, ProjectSuggeste
           Suggestion.create(
               IssueType.PROGUARD_EMPTY_MAP,
               Category.PROGUARD,
+              Payload.getDefaultInstance(),
               EMPTY_MAP_SUGGESTION_MESSAGE,
               /* estimatedBytesSaved= */ null,
               /* autoFix= */ null));
@@ -102,12 +107,14 @@ public final class ProguardSuggester implements BundleSuggester, ProjectSuggeste
           Suggestion.create(
               IssueType.PROGUARD_NO_SHRINKING,
               Category.PROGUARD,
+              Payload.getDefaultInstance(),
               NO_CODE_SHRINKING,
               /* estimatedBytesSaved= */ null,
               /* autoFix= */ null),
           Suggestion.create(
               IssueType.PROGUARD_NO_OBFUSCATION,
               Category.PROGUARD,
+              Payload.getDefaultInstance(),
               NO_OBFUSCATION,
               /* estimatedBytesSaved= */ null,
               /* autoFix= */ null));
@@ -118,6 +125,7 @@ public final class ProguardSuggester implements BundleSuggester, ProjectSuggeste
           Suggestion.create(
               IssueType.PROGUARD_NO_SHRINKING,
               Category.PROGUARD,
+              Payload.getDefaultInstance(),
               NO_CODE_SHRINKING,
               /* estimatedBytesSaved= */ null,
               /* autoFix= */ null));
@@ -127,6 +135,7 @@ public final class ProguardSuggester implements BundleSuggester, ProjectSuggeste
           Suggestion.create(
               IssueType.PROGUARD_NO_OBFUSCATION,
               Category.PROGUARD,
+              Payload.getDefaultInstance(),
               NO_OBFUSCATION,
               /* estimatedBytesSaved= */ null,
               /* autoFix= */ null));

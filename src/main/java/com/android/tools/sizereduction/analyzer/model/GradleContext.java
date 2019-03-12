@@ -17,8 +17,8 @@
 package com.android.tools.sizereduction.analyzer.model;
 
 import com.google.auto.value.AutoValue;
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
+import javax.annotation.Nullable;
 
 /** Context for the gradle project being analyzed, to be used by the suggester when it is called. */
 @AutoValue
@@ -36,7 +36,6 @@ public abstract class GradleContext implements Context {
     return builder().setMinSdkVersion(minSdkVersion).setOnDemand(onDemand).build();
   }
 
-  @VisibleForTesting
   public static GradleContext create(int minSdkVersion) {
     return builder().setMinSdkVersion(minSdkVersion).build();
   }
@@ -46,7 +45,8 @@ public abstract class GradleContext implements Context {
     return new AutoValue_GradleContext.Builder()
         .setOnDemand(false)
         .setProguardConfigs(ImmutableMap.of())
-        .setPluginType(PluginType.UNKNOWN);
+        .setPluginType(PluginType.UNKNOWN)
+        .setBundleConfig(BundleConfig.builder().build());
   }
 
   /** The min sdk version declared for this project. */
@@ -60,8 +60,15 @@ public abstract class GradleContext implements Context {
   /** Get the plugin type for this project. */
   public abstract PluginType getPluginType();
 
+  /** Get the gradle build version for this project. */
+  @Nullable
+  public abstract AndroidPluginVersion getAndroidPluginVersion();
+
   /** Gets the proguard configurations. */
   public abstract ImmutableMap<String, ProguardConfig> getProguardConfigs();
+
+  /** Gets the Bundle Configuration for the gradle project. */
+  public abstract BundleConfig getBundleConfig();
 
   /** Builder for the {@link GradleContext}. */
   @AutoValue.Builder
@@ -76,9 +83,15 @@ public abstract class GradleContext implements Context {
     /** Set the plugin type for this project. */
     public abstract Builder setPluginType(PluginType pluginType);
 
+    /** Set the Android gradle plugin version. */
+    public abstract Builder setAndroidPluginVersion(@Nullable AndroidPluginVersion pluginVersion);
+
     /** Sets the proguard configurations. */
     public abstract Builder setProguardConfigs(
         ImmutableMap<String, ProguardConfig> proguardConfigs);
+
+    /** Set the Bundle Configuration for the gradle project. */
+    public abstract Builder setBundleConfig(BundleConfig pluginVersion);
 
     /** Build the context object. */
     public abstract GradleContext build();

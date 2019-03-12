@@ -16,6 +16,7 @@
 
 package com.android.tools.sizereduction.analyzer.suggesters.testing;
 
+import com.android.tools.build.bundletool.model.AppBundle;
 import com.android.tools.sizereduction.analyzer.model.BundleContext;
 import com.android.tools.sizereduction.analyzer.model.Context;
 import com.android.tools.sizereduction.analyzer.model.FileData;
@@ -72,7 +73,8 @@ public final class FakeSuggester
   }
 
   @Override
-  public ImmutableList<Suggestion> processBundle(BundleContext context, ZipFile bundle) {
+  public ImmutableList<Suggestion> processBundle(
+      BundleContext context, AppBundle bundle, ZipFile bundleZip) {
     return getArtifactSuggestions();
   }
 

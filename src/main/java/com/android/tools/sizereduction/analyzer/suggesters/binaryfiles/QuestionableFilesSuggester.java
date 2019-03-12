@@ -16,6 +16,7 @@
 
 package com.android.tools.sizereduction.analyzer.suggesters.binaryfiles;
 
+import com.android.tools.sizereduction.analyzer.SuggestionPayload.Payload;
 import com.android.tools.sizereduction.analyzer.model.BundleContext;
 import com.android.tools.sizereduction.analyzer.model.FileData;
 import com.android.tools.sizereduction.analyzer.model.GradleContext;
@@ -88,6 +89,7 @@ public class QuestionableFilesSuggester implements BundleEntrySuggester, Project
         Suggestion.create(
             Suggestion.IssueType.QUESTIONABLE_FILE,
             Suggestion.Category.LARGE_FILES,
+            Payload.getDefaultInstance(),
             getSuggestionMessage(fileData.getPathWithinRoot()),
             savingsEstimate,
             /* autoFix= */ null));

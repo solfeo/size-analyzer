@@ -18,6 +18,7 @@ package com.android.tools.sizereduction.analyzer.suggesters.binaryfiles;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.android.tools.sizereduction.analyzer.SuggestionPayload.Payload;
 import com.android.tools.sizereduction.analyzer.model.BundleContext;
 import com.android.tools.sizereduction.analyzer.model.FileData;
 import com.android.tools.sizereduction.analyzer.model.GradleContext;
@@ -88,12 +89,14 @@ public class LargeFilesSuggesterTest {
             Suggestion.create(
                 Suggestion.IssueType.MEDIA_STREAMING,
                 Suggestion.Category.LARGE_FILES,
+                Payload.getDefaultInstance(),
                 "Stream media file " + MP4_VIDEO + " from the internet to avoid bundling in apk",
                 MEDIA_FILE_SIZE,
                 /* autoFix= */ null),
             Suggestion.create(
                 Suggestion.IssueType.LARGE_FILES_DYNAMIC_FEATURE,
                 Suggestion.Category.LARGE_FILES,
+                Payload.getDefaultInstance(),
                 "Place large file "
                     + MP4_VIDEO
                     + " inside an on demand dynamic-feature to avoid bundling in apk",
@@ -112,6 +115,7 @@ public class LargeFilesSuggesterTest {
             Suggestion.create(
                 Suggestion.IssueType.LARGE_FILES_DYNAMIC_FEATURE,
                 Suggestion.Category.LARGE_FILES,
+                Payload.getDefaultInstance(),
                 "Place large file "
                     + BIN_FILE
                     + " inside an on demand dynamic-feature to avoid bundling in apk",
@@ -130,6 +134,7 @@ public class LargeFilesSuggesterTest {
             Suggestion.create(
                 Suggestion.IssueType.LARGE_FILES_DYNAMIC_FEATURE,
                 Suggestion.Category.LARGE_FILES,
+                Payload.getDefaultInstance(),
                 "Place large file "
                     + PROJECT_BIN_FILE
                     + " inside an on demand dynamic-feature to avoid bundling in apk",

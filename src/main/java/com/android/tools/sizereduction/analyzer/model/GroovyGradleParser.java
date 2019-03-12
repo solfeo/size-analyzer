@@ -25,12 +25,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nullable;
 import org.codehaus.groovy.ast.ASTNode;
 import org.codehaus.groovy.ast.ClassNode;
 import org.codehaus.groovy.ast.CodeVisitorSupport;
 import org.codehaus.groovy.ast.builder.AstBuilder;
 import org.codehaus.groovy.ast.expr.ArgumentListExpression;
+import org.codehaus.groovy.ast.expr.BinaryExpression;
 import org.codehaus.groovy.ast.expr.ClosureExpression;
+import org.codehaus.groovy.ast.expr.ConstantExpression;
 import org.codehaus.groovy.ast.expr.Expression;
 import org.codehaus.groovy.ast.expr.MapEntryExpression;
 import org.codehaus.groovy.ast.expr.MethodCallExpression;
@@ -53,21 +56,28 @@ public final class GroovyGradleParser extends CodeVisitorSupport {
   private final List<MethodCallExpression> methodCallStack = new ArrayList<>();
   private int minSdkVersion = -1;
   private final Map<String, ProguardConfig.Builder> proguardConfigs = new HashMap<>();
-  private final GradleContext.Builder gradleContextBuilder = GradleContext.builder();
+  private final GradleContext.Builder gradleContextBuilder;
+  private BundleConfig.Builder bundleConfigBuilder = BundleConfig.builder();
   private final String content;
   private int defaultMinSdkVersion = 1;
 
-  private GroovyGradleParser(String content, int defaultMinSdkVersion) {
+  private GroovyGradleParser(
+      String content, int defaultMinSdkVersion, AndroidPluginVersion defaultAndroidPluginVersion) {
     this.content = content;
     this.defaultMinSdkVersion = defaultMinSdkVersion;
+    this.gradleContextBuilder =
+        GradleContext.builder().setAndroidPluginVersion(defaultAndroidPluginVersion);
   }
 
   public static GradleContext.Builder parseGradleBuildFile(
-      String content, int defaultMinSdkVersion) {
+      String content,
+      int defaultMinSdkVersion,
+      @Nullable AndroidPluginVersion defaultAndroidPluginVersion) {
     // We need to have an abstract syntax tree, which is what the conversion phase produces,
     // Anything more will try to semantically understand the groovy code.
     List<ASTNode> astNodes = new AstBuilder().buildFromString(CompilePhase.CONVERSION, content);
-    GroovyGradleParser parser = new GroovyGradleParser(content, defaultMinSdkVersion);
+    GroovyGradleParser parser =
+        new GroovyGradleParser(content, defaultMinSdkVersion, defaultAndroidPluginVersion);
 
     for (ASTNode node : astNodes) {
       if (node instanceof ClassNode) {
@@ -85,6 +95,7 @@ public final class GroovyGradleParser extends CodeVisitorSupport {
             .collect(toImmutableMap(entry -> entry.getKey(), entry -> entry.getValue().build()));
     gradleContextBuilder
         .setProguardConfigs(configs)
+        .setBundleConfig(bundleConfigBuilder.build())
         .setMinSdkVersion(minSdkVersion > 0 ? minSdkVersion : defaultMinSdkVersion);
     return gradleContextBuilder;
   }
@@ -140,6 +151,44 @@ public final class GroovyGradleParser extends CodeVisitorSupport {
       }
     }
     super.visitTupleExpression(tupleExpression);
+  }
+
+  /** Handles a groovy BinaryExpression such as foo = true, or bar.baz.foo = true. */
+  @Override
+  public void visitBinaryExpression(BinaryExpression binaryExpression) {
+    if (!methodCallStack.isEmpty()) {
+      MethodCallExpression call = Iterables.getLast(methodCallStack);
+      String parent = call.getMethodAsString();
+      String parentParent = getParentParent();
+      Expression leftExpression = binaryExpression.getLeftExpression();
+      Expression rightExpression = binaryExpression.getRightExpression();
+      if (rightExpression instanceof ConstantExpression
+          && (leftExpression instanceof PropertyExpression
+              || leftExpression instanceof VariableExpression)) {
+        String value = rightExpression.getText();
+        String property = "";
+        if (leftExpression instanceof PropertyExpression) {
+          Expression leftPropertyExpression = ((PropertyExpression) leftExpression).getProperty();
+          if (!(leftPropertyExpression instanceof ConstantExpression)) {
+            return;
+          }
+          property = ((ConstantExpression) leftPropertyExpression).getText();
+          Expression leftObjectExpression =
+              ((PropertyExpression) leftExpression).getObjectExpression();
+          parentParent = parent;
+          parent = getValidParentString(leftObjectExpression);
+          if (leftObjectExpression instanceof PropertyExpression) {
+            parentParent =
+                getValidParentString(
+                    ((PropertyExpression) leftObjectExpression).getObjectExpression());
+          }
+        } else {
+          property = ((VariableExpression) leftExpression).getName();
+        }
+        checkDslPropertyAssignment(property, value, parent, parentParent);
+      }
+    }
+    super.visitBinaryExpression(binaryExpression);
   }
 
   /**
@@ -239,6 +288,35 @@ public final class GroovyGradleParser extends CodeVisitorSupport {
         // obfuscation is enabled for this project.
         proguardConfig.setObfuscationEnabled(value.equals("true"));
         proguardConfigs.put(buildType, proguardConfig);
+        break;
+      case "enableSplit":
+        if (parentParent.equals("bundle")) {
+          switch (parent) {
+            case "abi": // 3.2 and above.
+              bundleConfigBuilder.setAbiSplitEnabled(value.equals("true"));
+              break;
+            case "density":
+              bundleConfigBuilder.setDensitySplitEnabled(value.equals("true"));
+              break;
+            case "language":
+              bundleConfigBuilder.setLanguageSplitEnabled(value.equals("true"));
+              break;
+            default:
+              // ignore other proprties
+              break;
+          }
+        }
+        break;
+      case "classpath":
+        if (parent.equals("dependencies") && parentParent.equals("buildscript")) {
+          if (isStringLiteral(value)) {
+            String classPath = getStringLiteralValue(value);
+            if (classPath.startsWith("com.android.tools.build:gradle:")) {
+              String version = classPath.substring("com.android.tools.build:gradle:".length());
+              gradleContextBuilder.setAndroidPluginVersion(AndroidPluginVersion.create(version));
+            }
+          }
+        }
         break;
       default:
         // there are many other valid properties, but we do not care to store them yet.

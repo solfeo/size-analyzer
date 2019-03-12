@@ -68,7 +68,8 @@ public final class BundleAnalyzer implements ArtifactAnalyzer {
       BundleContext baseContext =
           contextPerModule.get(BundleModuleName.create(BundleModuleName.BASE_MODULE_NAME));
       bundleSuggesters.forEach(
-          suggester -> resultBuilder.addAll(suggester.processBundle(baseContext, zipFile)));
+          suggester ->
+              resultBuilder.addAll(suggester.processBundle(baseContext, appBundle, zipFile)));
 
       // Process suggesters operating on the individual bundle files.
       Enumeration<? extends ZipEntry> entries = zipFile.entries();

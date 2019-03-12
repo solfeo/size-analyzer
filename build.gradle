@@ -8,7 +8,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath "com.google.protobuf:protobuf-gradle-plugin:0.8.3"
+        classpath "com.google.protobuf:protobuf-gradle-plugin:0.8.8"
         classpath "com.github.jengelman.gradle.plugins:shadow:4.0.4"
     }
 }
@@ -17,6 +17,7 @@ apply plugin: "com.github.johnrengelman.shadow"
 apply plugin: "com.google.protobuf"
 apply plugin: "java"
 apply plugin: "maven"
+apply plugin: "distribution"
 
 repositories {
     mavenLocal()
@@ -66,15 +67,12 @@ protobuf {
     }
 }
 
-shadowJar {
-    baseName = 'analyzer'
-    classifier = ''
-}
+// Make it easier to distinguish between the application JAR and the library JAR
+jar.baseName = 'analyzer-lib'
 
-// Artifact to use as standalone command line tool.
+// Artifact to use as standalone command line tool (analyzer.jar)
 task executableJar(type: ShadowJar) {
     baseName = 'analyzer'
-    classifier = 'all'
     manifest {
         attributes 'Main-Class': 'com.android.tools.sizereduction.analyzer.AnalyzerMain'
     }
@@ -90,4 +88,16 @@ task executableJar(type: ShadowJar) {
     exclude 'META-INF/*.SF'
     exclude 'META-INF/*.DSA'
     exclude 'META-INF/*.RSA'
+}
+
+distributions {
+    main {
+        contents {
+            // NOTE: All files in src/main/dist will automatically be included
+            from(executableJar) {
+                into 'bin'
+            }
+            from 'LICENSE' // Must include the license in every distribution
+        }
+    }
 }

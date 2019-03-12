@@ -18,6 +18,7 @@ package com.android.tools.sizereduction.analyzer.suggesters.binaryfiles;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.android.tools.sizereduction.analyzer.SuggestionPayload.Payload;
 import com.android.tools.sizereduction.analyzer.model.BundleContext;
 import com.android.tools.sizereduction.analyzer.model.FileData;
 import com.android.tools.sizereduction.analyzer.model.GradleContext;
@@ -194,6 +195,7 @@ public class QuestionableFilesSuggesterTest {
             Suggestion.create(
                 Suggestion.IssueType.QUESTIONABLE_FILE,
                 Suggestion.Category.LARGE_FILES,
+                Payload.getDefaultInstance(),
                 QuestionableFilesSuggester.getSuggestionMessage(Paths.get(filename)),
                 LARGE_FILE_SIZE,
                 /* autoFix= */ null));
@@ -209,6 +211,7 @@ public class QuestionableFilesSuggesterTest {
             Suggestion.create(
                 Suggestion.IssueType.QUESTIONABLE_FILE,
                 Suggestion.Category.LARGE_FILES,
+                Payload.getDefaultInstance(),
                 QuestionableFilesSuggester.getSuggestionMessage(Paths.get(filename)),
                 LARGE_FILE_SIZE,
                 /* autoFix= */ null));

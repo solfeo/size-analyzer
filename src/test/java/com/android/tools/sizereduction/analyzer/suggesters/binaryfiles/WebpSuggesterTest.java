@@ -20,6 +20,9 @@ import static com.android.tools.sizereduction.analyzer.suggesters.binaryfiles.We
 import static com.android.tools.sizereduction.analyzer.utils.TestUtils.getTestDataFile;
 import static com.google.common.truth.Truth.assertThat;
 
+import com.android.tools.sizereduction.analyzer.SuggestionPayload.FileEntryData;
+import com.android.tools.sizereduction.analyzer.SuggestionPayload.Payload;
+import com.android.tools.sizereduction.analyzer.SuggestionPayload.Payload.WebpData;
 import com.android.tools.sizereduction.analyzer.model.BundleContext;
 import com.android.tools.sizereduction.analyzer.model.FileData;
 import com.android.tools.sizereduction.analyzer.model.GradleContext;
@@ -77,6 +80,11 @@ public class WebpSuggesterTest {
             Suggestion.create(
                 Suggestion.IssueType.WEBP,
                 Suggestion.Category.WEBP,
+                Payload.newBuilder()
+                    .setWebpData(
+                        WebpData.newBuilder()
+                            .setFile(FileEntryData.newBuilder().setFilePath("drawing.png")))
+                    .build(),
                 "Convert drawing.png to webp with lossless encoding",
                 200L,
                 new WebpAutoFix(systemFileData.getSystemPath())));

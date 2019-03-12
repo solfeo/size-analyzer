@@ -16,6 +16,7 @@
 
 package com.android.tools.sizereduction.analyzer.suggesters;
 
+import com.android.tools.build.bundletool.model.AppBundle;
 import com.android.tools.sizereduction.analyzer.model.BundleContext;
 import com.google.common.collect.ImmutableList;
 import java.util.zip.ZipFile;
@@ -24,5 +25,6 @@ import java.util.zip.ZipFile;
 public interface BundleSuggester {
 
   /** Generates suggestions for an App Bundle file given as a ZIP file. */
-  ImmutableList<Suggestion> processBundle(BundleContext context, ZipFile bundle);
+  ImmutableList<Suggestion> processBundle(
+      BundleContext context, AppBundle bundle, ZipFile bundleZip);
 }

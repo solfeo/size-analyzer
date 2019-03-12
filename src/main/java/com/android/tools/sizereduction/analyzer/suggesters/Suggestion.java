@@ -16,6 +16,7 @@
 
 package com.android.tools.sizereduction.analyzer.suggesters;
 
+import com.android.tools.sizereduction.analyzer.SuggestionPayload.Payload;
 import com.google.auto.value.AutoValue;
 import javax.annotation.Nullable;
 
@@ -27,6 +28,7 @@ public abstract class Suggestion {
     WEBP,
     LARGE_FILES,
     PROGUARD,
+    BUNDLE_CONFIG,
   }
 
   /** The specific issue type for a given suggestion. */
@@ -39,20 +41,28 @@ public abstract class Suggestion {
     PROGUARD_NO_SHRINKING,
     PROGUARD_NO_OBFUSCATION,
     QUESTIONABLE_FILE,
+    BUNDLES_NO_ABI_SPLITTING,
+    BUNDLES_NO_DENSITY_SPLITTING,
+    BUNDLES_NO_LANGUAGE_SPLITTING,
+    BUNDLES_NO_UNCOMPRESSED_NATIVE_LIBS,
   }
 
   public static Suggestion create(
       IssueType issueType,
       Category category,
+      Payload payload,
       String message,
       @Nullable Long estimatedBytesSaved,
       @Nullable AutoFix autoFix) {
-    return new AutoValue_Suggestion(issueType, category, message, estimatedBytesSaved, autoFix);
+    return new AutoValue_Suggestion(
+        issueType, category, payload, message, estimatedBytesSaved, autoFix);
   }
 
   public abstract IssueType getIssueType();
 
   public abstract Category getCategory();
+
+  public abstract Payload payload();
 
   public abstract String getMessage();
 

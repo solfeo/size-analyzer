@@ -18,6 +18,9 @@ package com.android.tools.sizereduction.analyzer.suggesters.binaryfiles;
 
 import static com.android.tools.sizereduction.analyzer.model.FileData.getFileExtension;
 
+import com.android.tools.sizereduction.analyzer.SuggestionPayload.FileEntryData;
+import com.android.tools.sizereduction.analyzer.SuggestionPayload.Payload;
+import com.android.tools.sizereduction.analyzer.SuggestionPayload.Payload.WebpData;
 import com.android.tools.sizereduction.analyzer.model.BundleContext;
 import com.android.tools.sizereduction.analyzer.model.Context;
 import com.android.tools.sizereduction.analyzer.model.FileData;
@@ -103,6 +106,13 @@ public class WebpSuggester implements BundleEntrySuggester, ProjectTreeSuggester
             Suggestion.create(
                 Suggestion.IssueType.WEBP,
                 Suggestion.Category.WEBP,
+                Payload.newBuilder()
+                    .setWebpData(
+                        WebpData.newBuilder()
+                            .setFile(
+                                FileEntryData.newBuilder()
+                                    .setFilePath(fileData.getPathWithinRoot().toString())))
+                    .build(),
                 "Convert " + fileData.getPathWithinRoot() + " to webp with lossless encoding",
                 estimate,
                 autoFix));

@@ -36,7 +36,7 @@ import picocli.CommandLine.Parameters;
     description = "Checks an Android Studio project directory for size suggestion savings.")
 public final class CheckProject implements Callable<Void> {
 
-  @Parameters(description = "Android Studio project directory", arity = "1" /* one parameter */)
+  @Parameters(description = "Android Studio project directory")
   private File directory;
 
   @Option(
@@ -53,6 +53,22 @@ public final class CheckProject implements Callable<Void> {
               + " Valid categories are webp, proguard, and large-files.")
   List<String> categories;
 
+  @Option(
+      names = {"-a", "--apply-fixes"},
+      description =
+          "Apply all available fixes automatically without prompting. This will make permanent"
+              + " changes to files in the project. This is mutually exclusive with the --show-fixes"
+              + " flag.")
+  private boolean applyFixes = false;
+
+  @Option(
+      names = {"-s", "--show-fixes"},
+      description =
+          "Show suggestions and prompt for any available fixes to be applies. Not all suggestions"
+              + " will have fixes available. This is mutually exclusive with the --apply-fixes"
+              + " flag.")
+  private boolean showFixes = false;
+
   private static final ProjectAnalyzer PROJECT_ANALYZER =
       new ProjectAnalyzer(
           ImmutableList.of(new ProguardSuggester()),
@@ -61,10 +77,18 @@ public final class CheckProject implements Callable<Void> {
 
   @Override
   public Void call() {
+    if (applyFixes && showFixes) {
+      System.out.println(
+          "--apply-fixes and --show-fixes are mutually exclusive and cannot both be"
+              + " true at the same time.");
+      return null;
+    }
     TerminalInterface.create(
             PROJECT_ANALYZER.analyze(directory),
             categories != null ? ImmutableList.copyOf(categories) : ImmutableList.of(),
-            displayAll)
+            displayAll,
+            applyFixes,
+            showFixes)
         .displaySuggestions();
     return null;
   }

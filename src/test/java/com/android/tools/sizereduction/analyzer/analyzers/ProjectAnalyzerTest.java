@@ -19,6 +19,8 @@ package com.android.tools.sizereduction.analyzer.analyzers;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.google.common.truth.Truth.assertThat;
 
+import com.android.tools.sizereduction.analyzer.SuggestionPayload.Payload;
+import com.android.tools.sizereduction.analyzer.model.AndroidPluginVersion;
 import com.android.tools.sizereduction.analyzer.model.GradleContext;
 import com.android.tools.sizereduction.analyzer.model.ProguardConfig;
 import com.android.tools.sizereduction.analyzer.suggesters.ProjectSuggester;
@@ -78,6 +80,7 @@ public final class ProjectAnalyzerTest {
         Suggestion.create(
             Suggestion.IssueType.WEBP,
             Suggestion.Category.WEBP,
+            Payload.getDefaultInstance(),
             "Stub Suggestion",
             /* estimatedBytesSaved= */ null,
             /* autoFix= */ null);
@@ -85,6 +88,7 @@ public final class ProjectAnalyzerTest {
         Suggestion.create(
             Suggestion.IssueType.PROGUARD_NO_OBFUSCATION,
             Suggestion.Category.PROGUARD,
+            Payload.getDefaultInstance(),
             "Stub Artifact Suggestion",
             /* estimatedBytesSaved= */ null,
             /* autoFix= */ null);
@@ -116,11 +120,13 @@ public final class ProjectAnalyzerTest {
                         .setMinifyEnabled(false)
                         .setHasProguardRules(true)
                         .build()))
+            .setAndroidPluginVersion(AndroidPluginVersion.create("3.4.0"))
             .build();
     Suggestion stubSuggestion =
         Suggestion.create(
             Suggestion.IssueType.WEBP,
             Suggestion.Category.WEBP,
+            Payload.getDefaultInstance(),
             "Stub Suggestion",
             /* estimatedBytesSaved= */ null,
             /* autoFix= */ null);

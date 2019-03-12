@@ -40,7 +40,7 @@ import picocli.CommandLine.Option;
       HelpCommand.class,
     })
 public class AnalyzerMain implements Callable<Void> {
-  private static final String CURRENT_VERSION = "0.1.1-beta1";
+  private static final String CURRENT_VERSION = "0.2.0";
 
   @Option(
       names = {"-h", "--help"},

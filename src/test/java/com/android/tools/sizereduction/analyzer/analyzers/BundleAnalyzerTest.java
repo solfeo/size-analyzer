@@ -18,6 +18,7 @@ package com.android.tools.sizereduction.analyzer.analyzers;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.android.tools.sizereduction.analyzer.SuggestionPayload.Payload;
 import com.android.tools.sizereduction.analyzer.model.BundleContext;
 import com.android.tools.sizereduction.analyzer.suggesters.BundleEntrySuggester;
 import com.android.tools.sizereduction.analyzer.suggesters.BundleSuggester;
@@ -57,6 +58,7 @@ public final class BundleAnalyzerTest {
         Suggestion.create(
             Suggestion.IssueType.WEBP,
             Suggestion.Category.WEBP,
+            Payload.getDefaultInstance(),
             "Stub Suggestion",
             /* estimatedBytesSaved= */ null,
             /* autoFix= */ null);
@@ -64,6 +66,7 @@ public final class BundleAnalyzerTest {
         Suggestion.create(
             Suggestion.IssueType.WEBP,
             Suggestion.Category.WEBP,
+            Payload.getDefaultInstance(),
             "Stub Artifact Suggestion",
             /* estimatedBytesSaved= */ null,
             /* autoFix= */ null);

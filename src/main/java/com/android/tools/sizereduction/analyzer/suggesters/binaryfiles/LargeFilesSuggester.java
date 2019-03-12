@@ -18,6 +18,7 @@ package com.android.tools.sizereduction.analyzer.suggesters.binaryfiles;
 
 import static com.android.tools.sizereduction.analyzer.model.FileData.getFileExtension;
 
+import com.android.tools.sizereduction.analyzer.SuggestionPayload.Payload;
 import com.android.tools.sizereduction.analyzer.model.BundleContext;
 import com.android.tools.sizereduction.analyzer.model.Context;
 import com.android.tools.sizereduction.analyzer.model.FileData;
@@ -83,6 +84,7 @@ public class LargeFilesSuggester implements BundleEntrySuggester, ProjectTreeSug
           Suggestion.create(
               Suggestion.IssueType.LARGE_FILES_DYNAMIC_FEATURE,
               Suggestion.Category.LARGE_FILES,
+              Payload.getDefaultInstance(),
               "Place large file "
                   + fileData.getPathWithinRoot()
                   + " inside an on demand dynamic-feature to avoid bundling in apk",
@@ -94,6 +96,7 @@ public class LargeFilesSuggester implements BundleEntrySuggester, ProjectTreeSug
           Suggestion.create(
               Suggestion.IssueType.MEDIA_STREAMING,
               Suggestion.Category.LARGE_FILES,
+              Payload.getDefaultInstance(),
               "Stream media file "
                   + fileData.getPathWithinRoot()
                   + " from the internet to avoid bundling in apk",
