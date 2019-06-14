@@ -8,7 +8,7 @@ The tool can be built using [gradle](https://gradle.org/). An executable jar can
 be built using the command below:
 
 ``` shell
-./gradlew executableJar
+./gradlew :analyzer:executableJar
 ```
 
 ## How to use the size analyzer
@@ -17,8 +17,8 @@ The executable jar can be run against either an Android Studio project or an
 [Android App Bundle](https://g.co/androidappbundle).
 
 ```shell
-java -jar build/libs/analyzer.jar check-bundle <path-to-aab>
-java -jar build/libs/analyzer.jar check-project <path-to-project-directory>
+java -jar analyzer/build/libs/analyzer.jar check-bundle <path-to-aab>
+java -jar analyzer/build/libs/analyzer.jar check-project <path-to-project-directory>
 ```
 
 ## Binary distributions

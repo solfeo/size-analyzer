@@ -1,0 +1,48 @@
+plugins {
+    id 'java'
+    id 'org.jetbrains.intellij' version '0.4.8'
+}
+
+group 'com.android.tool.sizereduction'
+version '0.1'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenLocal()
+    jcenter()
+    google()
+    maven { url "https://repository.apache.org/content/repositories/snapshots/" }
+}
+
+configurations {
+    analyzerLib
+}
+
+dependencies {
+    analyzerLib project(':analyzer')
+    configurations.analyzerLib.exclude(group: 'org.codehaus.groovy', module: 'groovy-all')
+
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    testCompile "com.google.truth:truth:0.44"
+    testCompile "org.mockito:mockito-core:2.25.0"
+
+    configurations.compile.extendsFrom(configurations.analyzerLib)
+}
+
+jar {
+    from {
+        configurations.analyzerLib.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    from(project(':analyzer').file('libs/libwebp')){
+        include '**/*'
+        exclude 'libwebp.jar'
+    }
+}
+
+intellij {
+    updateSinceUntilBuild false
+    plugins 'android'
+    pluginName 'Android Size Analyzer'
+    version '2018.1'
+}

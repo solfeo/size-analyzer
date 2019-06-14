@@ -1,0 +1,36 @@
+<idea-plugin>
+  <version>0.3.0</version>
+  <change-notes>
+      Initial release.
+  </change-notes>
+  <id>com.android.tool.sizereduction.plugin</id>
+    <id>com.android.tool.sizereduction.plugin</id>
+    <name>Android Size Analyzer</name>
+    <vendor>Google</vendor>
+
+    <description><![CDATA[
+        Gives concrete suggestions for reducing the size of your application<br>
+        https://github.com/android/size-analyzer
+    ]]></description>
+
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
+      on how to target different products -->
+    <depends>com.intellij.modules.androidstudio</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- Add your extensions here -->
+    </extensions>
+
+    <actions>
+      <group id="AnalyzeAppSizeGroup">
+        <separator/>
+        <action
+            id="AnalyzeAppSizeAction"
+            class="com.android.tools.sizereduction.plugin.AnalyzeAppSizeAction"
+            text="Analyze App Size..."
+            description="Get suggestions on how to reduce the size of your application">
+        </action>
+        <add-to-group group-id="AnalyzeMenu" anchor="last"/>
+      </group>
+    </actions>
+</idea-plugin>

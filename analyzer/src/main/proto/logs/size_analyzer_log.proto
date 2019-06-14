@@ -1,0 +1,95 @@
+syntax = "proto3";
+
+package logs.proto.play.bit;
+
+option java_package = "com.google.play.bit.proto";
+
+// Records the result of an app size analyzer run on a developer's machine. This
+// will include data from the size analyzer CLI and Android Studio plugins.
+message SizeAnalysisLog {
+  // The version of the analyzer library
+  string analyzer_version = 1;
+
+  // The type of artifact being analyzed
+  ArtifactType artifact_type = 2;
+
+  // Populated if this run had to stop because of an error
+  ErrorType error_type = 3;
+
+  // The size breakdown of the bundle, if available
+  BundleSizeBreakdown bundle_size_breakdown = 4;
+
+  // A breakdown of suggestions by issue type
+  repeated SuggestionsByIssueType suggestions_by_issue_type = 5;
+}
+
+// The type of app artifact being analyzed
+enum ArtifactType {
+  // Default value in case the server gets something we can't process
+  ARTIFACT_TYPE_UNKNOWN = 0;
+
+  // An Android Studio project directory containing app sources
+  PROJECT_DIR = 1;
+
+  // A compiled .aab file
+  APP_BUNDLE = 2;
+}
+
+// Classification for errors encountered during an analysis run
+enum ErrorType {
+  // Default value in case the server gets something we can't process
+  ERROR_TYPE_UNKNOWN = 0;
+
+  // General/unclassified exception
+  RUNTIME_ERROR = 1;
+
+  // No error (this should be the default for most runs)
+  NO_ERROR = 2;
+}
+
+// Metrics about all suggestions provided of a given issue type
+message SuggestionsByIssueType {
+  // The name of the specific issue type (this corresponds to an enum value from
+  // com.android.tools.sizereduction.analyzer.suggesters.Suggestion.IssueType,
+  // but the underlying data model does not use protos and is expected to change
+  // regularly, so we're storing it as a string here)
+  string issue_type = 1;
+
+  // The number of suggestions provided for the given app in this category
+  int32 suggestion_count = 2;
+
+  // The sum of suggestion size estimates provided for the given app in this
+  // category. This will not be populated if no estimates were given.
+  int32 estimated_savings_bytes = 3;
+
+  // The name of the category (this corresponds to an enum value from
+  // com.android.tools.sizereduction.analyzer.suggesters.Suggestion.Category,
+  // but the underlying data model does not use protos and is expected to change
+  // regularly, so we're storing it as a string here)
+  string category = 4;
+}
+
+// A high-level breakdown of the size of the app the tool was provided to
+// analyze, if that app was in bundle form. Note that these sizes do not
+// correspond to app download size; they're here to give us a rough idea of the
+// app's size category and what's taking up the most space. The sizes may be
+// rounded by the client to reduce identifiability of specific apps.
+message BundleSizeBreakdown {
+  // The raw size of the AAB file
+  int32 aab_file_bytes = 1;
+
+  // The sum of all DEX file sizes (uncompressed) for all features
+  int32 dex_bytes = 2;
+
+  // The sum of all res/ file sizes (uncompressed) for all features
+  int32 resource_file_bytes = 3;
+
+  // The sum of all resources.pb file sizes (uncompressed) for all features
+  int32 resource_pb_bytes = 4;
+
+  // The sum of all assets/ file sizes (uncompressed) for all features
+  int32 asset_bytes = 5;
+
+  // The sum of all lib/ file sizes (uncompressed) for all features
+  int32 native_lib_bytes = 6;
+}
