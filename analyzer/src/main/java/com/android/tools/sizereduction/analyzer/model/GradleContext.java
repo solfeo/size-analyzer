@@ -36,7 +36,16 @@ public abstract class GradleContext implements Context {
   };
 
   public static GradleContext create(int minSdkVersion, boolean onDemand) {
-    return builder().setMinSdkVersion(minSdkVersion).setOnDemand(onDemand).build();
+    return create(minSdkVersion, onDemand, /* embedsWearApk= */ false);
+  }
+
+  /** Create Gradle context with minSdkVersion, onDemand and embedsWearApk. */
+  public static GradleContext create(int minSdkVersion, boolean onDemand, boolean embedsWearApk) {
+    return builder()
+        .setMinSdkVersion(minSdkVersion)
+        .setOnDemand(onDemand)
+        .setEmbedsWearApk(embedsWearApk)
+        .build();
   }
 
   public static GradleContext create(int minSdkVersion) {

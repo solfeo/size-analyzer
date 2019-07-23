@@ -126,7 +126,7 @@ public final class ProjectAnalyzerTest {
             "Stub Artifact Suggestion",
             /* estimatedBytesSaved= */ null,
             /* autoFix= */ null);
-    suggester.setArtifactSuggestions(ImmutableList.of(stubArtifactSuggestion));
+    suggester.setArtifactSuggestions(ImmutableMultimap.of(context, stubArtifactSuggestion));
     suggester.setEntrySuggestions(
         ImmutableMultimap.of(
             ContextAndEntryPath.create(context, "src/main/AndroidManifest.xml"), stubSuggestion));

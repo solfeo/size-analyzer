@@ -18,5 +18,5 @@ package com.android.tools.sizereduction.analyzer.analyzers;
 
 /** Home of the size analyzer version constant. */
 public class Version {
-  public static final String CURRENT_VERSION = "0.3.0";
+  public static final String CURRENT_VERSION = "0.3.1";
 }

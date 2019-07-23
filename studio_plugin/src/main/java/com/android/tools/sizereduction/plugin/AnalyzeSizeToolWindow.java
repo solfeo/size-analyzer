@@ -5,6 +5,7 @@ import static org.apache.commons.lang3.StringEscapeUtils.escapeHtml4;
 import com.android.tools.sizereduction.analyzer.suggesters.AutoFix;
 import com.android.tools.sizereduction.analyzer.suggesters.Suggestion;
 import com.android.tools.sizereduction.analyzer.suggesters.Suggestion.Category;
+import com.android.tools.sizereduction.analyzer.suggesters.Suggestion.IssueType;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
 import com.intellij.icons.AllIcons.Actions;
@@ -29,7 +30,12 @@ import com.intellij.util.ui.UIUtil;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
@@ -116,8 +122,10 @@ public final class AnalyzeSizeToolWindow {
                                   });
                         }
                       });
-              ((DefaultTreeModel) suggestionTree.getModel())
-                  .removeNodeFromParent((DefaultMutableTreeNode) this.getValue("autofixNode"));
+              if (this.getValue("autofixNode") != null) {
+                ((DefaultTreeModel) suggestionTree.getModel())
+                    .removeNodeFromParent((DefaultMutableTreeNode) this.getValue("autofixNode"));
+              }
               descriptionAutoFixButton.setEnabled(false);
             }
           }
@@ -184,22 +192,12 @@ public final class AnalyzeSizeToolWindow {
   private Tree createSuggestionTree() {
     DefaultMutableTreeNode rootNode =
         new DefaultMutableTreeNode("Hurray! Your application is already optimized for size.");
-    SuggestionDataFactory factory = new SuggestionDataFactory();
     for (Category category : categoryDisplayOrder) {
       ImmutableList<Suggestion> suggestions = categorizedSuggestions.get(category);
       if (!suggestions.isEmpty()) {
-        DefaultMutableTreeNode categoryNode =
-            new DefaultMutableTreeNode();
-        long totalBytesSaved = 0;
-        for (Suggestion suggestion : suggestions) {
-          DefaultMutableTreeNode suggestionNode =
-              new DefaultMutableTreeNode(factory.fromSuggestion(suggestion));
-          categoryNode.add(suggestionNode);
-          totalBytesSaved +=
-              suggestion.getEstimatedBytesSaved() != null ? suggestion.getEstimatedBytesSaved() : 0;
-        }
-        categoryNode.setUserObject(new CategoryData(category, suggestions.size(), totalBytesSaved));
-        rootNode.add(categoryNode);
+        Map<IssueType, List<Suggestion>> suggestionMap =
+            suggestions.stream().collect(Collectors.groupingBy(Suggestion::getIssueType));
+        rootNode.add(buildNodesForCategory(category, suggestionMap));
       }
     }
     Tree tree = new Tree(rootNode);
@@ -217,7 +215,7 @@ public final class AnalyzeSizeToolWindow {
           description.setVisible(false);
           descriptionStrut.setVisible(false);
           descriptionMoreInfo.setVisible(false);
-          if (selection instanceof SuggestionData) {
+          if (selection instanceof SuggestionData || selection instanceof IssueTypeData) {
             splitter.setSecondComponent(descriptionPanel);
             descriptionTitle.setVisible(true);
             descriptionTitleStrut.setVisible(true);
@@ -239,39 +237,148 @@ public final class AnalyzeSizeToolWindow {
     return tree;
   }
 
+  private static DefaultMutableTreeNode buildNodesForCategory(
+      Category category, Map<IssueType, List<Suggestion>> suggestionMap) {
+    DefaultMutableTreeNode categoryNode = new DefaultMutableTreeNode();
+    long totalBytesSavedCategory = 0;
+    int totalSuggestionsCategory = 0;
+
+    for (IssueType issueType : suggestionMap.keySet()) {
+      DefaultMutableTreeNode typeNode = new DefaultMutableTreeNode();
+      boolean addIntermediateNode = SuggestionDataFactory.issueTypeNodeNames.get(issueType) != null;
+      List<Suggestion> suggestionsOfType = suggestionMap.get(issueType);
+      long totalBytesSavedType =
+          buildNodesForIssueType(suggestionsOfType, addIntermediateNode ? typeNode : categoryNode);
+      if (addIntermediateNode) {
+        categoryNode.add(typeNode);
+        typeNode.setUserObject(
+            new IssueTypeData(issueType, suggestionsOfType.size(), totalBytesSavedType));
+      }
+      totalSuggestionsCategory += suggestionsOfType.size();
+      totalBytesSavedCategory += totalBytesSavedType;
+    }
+    categoryNode.setUserObject(
+        new CategoryData(category, totalSuggestionsCategory, totalBytesSavedCategory));
+
+    return categoryNode;
+  }
+
+  private static long buildNodesForIssueType(
+      List<Suggestion> suggestionsOfType, DefaultMutableTreeNode parentNode) {
+    long bytesSaved = 0;
+    SuggestionDataFactory factory = new SuggestionDataFactory();
+
+    for (Suggestion suggestion : suggestionsOfType) {
+      DefaultMutableTreeNode suggestionNode =
+          new DefaultMutableTreeNode(factory.fromSuggestion(suggestion));
+      parentNode.add(suggestionNode);
+      bytesSaved +=
+          suggestion.getEstimatedBytesSaved() != null ? suggestion.getEstimatedBytesSaved() : 0;
+    }
+
+    return bytesSaved;
+  }
+
   private void showInformationInDescriptionPanelFor(DefaultMutableTreeNode selectedNode) {
-    SuggestionData suggestion = (SuggestionData) selectedNode.getUserObject();
-    // html tag is used so the text wraps.
-    String escapedTitle =
-        suggestion.getTitle() != null ? "<b> " + escapeHtml4(suggestion.getTitle()) + " </b>" : "";
-    if (suggestion.getBytesSaved() != null) {
-      escapedTitle +=
-          "<span style=\"color:"
-              + "#" + ColorUtil.toHex(UIUtil.getInactiveTextColor())
-              + ";\"> &nbsp;&nbsp;"
-              + "Estimated savings: "
-              + suggestion.getBytesSaved()
-              + "</span>";
-    }
-    descriptionTitle.setText("<html> " + escapedTitle + " </html>");
-    String escapedDescription =
-        suggestion.getDesc() != null ? escapeHtml4(suggestion.getDesc()) : "";
-    description.setText("<html> " + escapedDescription + " </html>");
-    if (suggestion.getMoreInfo() != null) {
-      descriptionStrut.setVisible(true);
-      descriptionMoreInfo.setVisible(true);
-      descriptionMoreInfo.setHyperlinkTarget(suggestion.getMoreInfo());
-    }
-    if (suggestion.getAutoFix() != null) {
-      descriptionAutoFixButton.setVisible(true);
-      descriptionAutoFixButton.setText(suggestion.getAutoFixTitle());
-      descriptionAutoFixButton.setIcon(Actions.IntentionBulb);
-      descriptionAutoFixButton.setEnabled(true);
-      descriptionAutoFixStrut.setVisible(true);
-      autofixAction.putValue("autofix", suggestion.getAutoFix());
-      autofixAction.putValue("autofixNode", selectedNode);
+    Object userObject = selectedNode.getUserObject();
+    if (userObject instanceof SuggestionData) {
+      SuggestionData suggestion = (SuggestionData) selectedNode.getUserObject();
+      // html tag is used so the text wraps.
+      String escapedTitle =
+          suggestion.getTitle() != null ? "<b> " + escapeHtml4(suggestion.getTitle()) + " </b>"
+              : "";
+      if (suggestion.getBytesSaved() != null) {
+        escapedTitle +=
+            "<span style=\"color:"
+                + "#" + ColorUtil.toHex(UIUtil.getInactiveTextColor())
+                + ";\"> &nbsp;&nbsp;"
+                + "Estimated savings: "
+                + suggestion.getBytesSaved()
+                + "</span>";
+      }
+      descriptionTitle.setText("<html> " + escapedTitle + " </html>");
+      String escapedDescription =
+          suggestion.getDesc() != null ? escapeHtml4(suggestion.getDesc()) : "";
+      description.setText("<html> " + escapedDescription + " </html>");
+      if (suggestion.getMoreInfo() != null) {
+        descriptionStrut.setVisible(true);
+        descriptionMoreInfo.setVisible(true);
+        descriptionMoreInfo.setHyperlinkTarget(suggestion.getMoreInfo());
+      }
+      if (suggestion.getAutoFix() != null) {
+        descriptionAutoFixButton.setVisible(true);
+        descriptionAutoFixButton.setText(suggestion.getAutoFixTitle());
+        descriptionAutoFixButton.setIcon(Actions.IntentionBulb);
+        descriptionAutoFixButton.setEnabled(true);
+        descriptionAutoFixStrut.setVisible(true);
+        autofixAction.putValue("autofix", suggestion.getAutoFix());
+        autofixAction.putValue("autofixNode", selectedNode);
+      }
+    } else if (userObject instanceof IssueTypeData) {
+      IssueTypeData issueType = (IssueTypeData) selectedNode.getUserObject();
+      // html tag is used so the text wraps.
+      String escapedTitle = "<b> " + escapeHtml4(issueType.toString()) + " </b>";
+      if (issueType.totalSizeSaved() != null) {
+        escapedTitle +=
+            "<span style=\"color:"
+                + "#" + ColorUtil.toHex(UIUtil.getInactiveTextColor())
+                + ";\"> &nbsp;&nbsp;"
+                + "Estimated savings: "
+                + issueType.totalSizeSaved()
+                + "</span>";
+      }
+      descriptionTitle.setText("<html> " + escapedTitle + " </html>");
+      String escapedDescription =
+          issueType.getDesc() != null ? escapeHtml4(issueType.getDesc()) : "";
+      description.setText("<html> " + escapedDescription + " </html>");
+      List<DefaultMutableTreeNode> childAutoFixNodes = getChildrenWithAutoFixes(selectedNode);
+      if (childAutoFixNodes.size() > 1) {
+        descriptionAutoFixButton.setVisible(true);
+        descriptionAutoFixButton.setText(
+            "Apply " + childAutoFixNodes.size() + " fixes: " + issueType.getAutoFixTitle());
+        descriptionAutoFixButton.setIcon(Actions.IntentionBulb);
+        descriptionAutoFixButton.setEnabled(true);
+        descriptionAutoFixStrut.setVisible(true);
+        // Create an autofix action that applies each of the child nodes' autofixes.
+        autofixAction.putValue("autofix", new AutoFix() {
+          @Override
+          public void apply() {
+            for (DefaultMutableTreeNode childNode : childAutoFixNodes) {
+              ((SuggestionData) childNode.getUserObject()).getAutoFix().apply();
+            }
+            DefaultTreeModel treeModel = (DefaultTreeModel) suggestionTree.getModel();
+            childAutoFixNodes.forEach(treeModel::removeNodeFromParent);
+            if (selectedNode.getChildCount() == 0) {
+              ((DefaultTreeModel) suggestionTree.getModel()).removeNodeFromParent(selectedNode);
+            }
+          }
+        });
+        // Set the autoFix node to null to disable standard removal.
+        autofixAction.putValue("autofixNode", null);
+      }
     }
     descriptionPanel.revalidate();
+  }
+
+  private static List<DefaultMutableTreeNode> getChildrenWithAutoFixes(
+      DefaultMutableTreeNode node) {
+    ArrayList<DefaultMutableTreeNode> autoFixNodes = new ArrayList<>();
+
+    for (Enumeration<?> children = node.children();
+        children.hasMoreElements(); ) {
+      Object child = children.nextElement();
+      if (child instanceof DefaultMutableTreeNode) {
+        DefaultMutableTreeNode childNode = (DefaultMutableTreeNode) child;
+        if (childNode.getUserObject() instanceof SuggestionData) {
+          SuggestionData suggestion = (SuggestionData) childNode.getUserObject();
+          if (suggestion.getAutoFix() != null) {
+            autoFixNodes.add(childNode);
+          }
+        }
+      }
+    }
+
+    return autoFixNodes;
   }
 
   private void showCategoryInCategoryPanelFor(DefaultMutableTreeNode categoryNode) {
@@ -290,11 +397,11 @@ public final class AnalyzeSizeToolWindow {
         nodeEnumeration.hasMoreElements(); ) {
       Object nodeValue = nodeEnumeration.nextElement();
       if (nodeValue instanceof DefaultMutableTreeNode) {
-        DefaultMutableTreeNode suggestionNode = (DefaultMutableTreeNode) nodeValue;
-        SuggestionData suggestion = (SuggestionData) suggestionNode.getUserObject();
+        DefaultMutableTreeNode node = (DefaultMutableTreeNode) nodeValue;
+        String linkTitle = extractLinkTitle(node);
         suggestionsPanel.add(
             new LinkLabel<>(
-                suggestion.getTitle(),
+                linkTitle,
                 null,
                 new LinkListener<Object>() {
                   @Override
@@ -307,9 +414,21 @@ public final class AnalyzeSizeToolWindow {
                     suggestionTree.scrollPathToVisible(selectedNode);
                   }
                 },
-                suggestionNode));
+                node));
       }
     }
+  }
+
+  @Nullable
+  private static String extractLinkTitle (DefaultMutableTreeNode node) {
+    if (node.getUserObject() instanceof IssueTypeData) {
+      IssueTypeData issueTypeData = (IssueTypeData) node.getUserObject();
+      return issueTypeData.toString();
+    } else if (node.getUserObject() instanceof SuggestionData) {
+      SuggestionData suggestionData = (SuggestionData) node.getUserObject();
+      return suggestionData.getTitle();
+    }
+    return null;
   }
 
   public void setCategorizedSuggestions(

@@ -38,6 +38,7 @@ import org.junit.runners.JUnit4;
 public final class BundleAnalyzerTest {
 
   private static final String APP_BUNDLE = "app.aab";
+  private static final String WEARABLE_APP_BUNDLE = "wear.aab";
 
   private final FakeSuggester suggester = new FakeSuggester();
   private ImmutableList<BundleSuggester> testArtifactSuggesters;
@@ -74,7 +75,41 @@ public final class BundleAnalyzerTest {
         ImmutableMultimap.of(
             ContextAndEntryPath.create(context, "base/manifest/AndroidManifest.xml"),
             stubSuggestion));
-    suggester.setArtifactSuggestions(ImmutableList.of(stubArtifactSuggestion));
+    suggester.setArtifactSuggestions(ImmutableMultimap.of(context, stubArtifactSuggestion));
+
+    ImmutableList<Suggestion> suggestions = analyzer.analyze(bundleFile);
+
+    assertThat(suggestions).containsExactly(stubSuggestion, stubArtifactSuggestion);
+  }
+
+  @Test
+  public void analyze_callsSuggesters_embeddedWearApk() throws Exception {
+    BundleAnalyzer analyzer = new BundleAnalyzer(testArtifactSuggesters, testEntrySuggesters);
+    File bundleFile = TestUtils.getTestDataFile(WEARABLE_APP_BUNDLE);
+    BundleContext context =
+        BundleContext.create(
+            /* minSdkVersion= */ 21, /* onDemand= */ false, /* embedsWearApk= */ true);
+    Suggestion stubSuggestion =
+        Suggestion.create(
+            Suggestion.IssueType.WEBP,
+            Suggestion.Category.WEBP,
+            Payload.getDefaultInstance(),
+            "Stub Suggestion",
+            /* estimatedBytesSaved= */ null,
+            /* autoFix= */ null);
+    Suggestion stubArtifactSuggestion =
+        Suggestion.create(
+            Suggestion.IssueType.WEBP,
+            Suggestion.Category.WEBP,
+            Payload.getDefaultInstance(),
+            "Stub Artifact Suggestion",
+            /* estimatedBytesSaved= */ null,
+            /* autoFix= */ null);
+    suggester.setEntrySuggestions(
+        ImmutableMultimap.of(
+            ContextAndEntryPath.create(context, "base/manifest/AndroidManifest.xml"),
+            stubSuggestion));
+    suggester.setArtifactSuggestions(ImmutableMultimap.of(context, stubArtifactSuggestion));
 
     ImmutableList<Suggestion> suggestions = analyzer.analyze(bundleFile);
 

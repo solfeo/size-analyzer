@@ -7,6 +7,7 @@ import com.android.tools.sizereduction.analyzer.SuggestionPayload.Payload;
 import com.android.tools.sizereduction.analyzer.suggesters.AutoFix;
 import com.android.tools.sizereduction.analyzer.suggesters.Suggestion;
 import com.android.tools.sizereduction.analyzer.suggesters.Suggestion.Category;
+import com.android.tools.sizereduction.analyzer.suggesters.Suggestion.IssueType;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
 import com.intellij.openapi.project.Project;
@@ -173,9 +174,9 @@ public final class AnalyzeSizeToolWindowTest {
         assertThat(component.toString()).contains("Estimated savings: 29.30 KB");
       } else if (component instanceof JPanel) {
         Component[] suggestionPanelComponents = ((JPanel) component).getComponents();
-        assertThat(suggestionPanelComponents).hasLength(2);
+        assertThat(suggestionPanelComponents).hasLength(1);
         for (Component linkLabel : suggestionPanelComponents) {
-          assertThat(((LinkLabel<?>) linkLabel).getText()).isEqualTo(webPSuggestionData.getTitle());
+          assertThat(((LinkLabel<?>) linkLabel).getText()).isEqualTo(SuggestionDataFactory.issueTypeNodeNames.get(IssueType.WEBP));
         }
       }
     }
@@ -203,6 +204,23 @@ public final class AnalyzeSizeToolWindowTest {
             false);
     assertThat(renderedNode.toString()).contains("2 recommendations");
     assertThat(renderedNode.toString()).contains("29.30 KB");
+  }
+
+  @Test
+  public void multipleSuggestionsCreateIssueTypeNode() {
+    JPanel toolPanel = toolWindow.getContent();
+    Component[] components = toolPanel.getComponents();
+    OnePixelSplitter splitter = (OnePixelSplitter) components[0];
+    JBScrollPane leftPane = (JBScrollPane) splitter.getFirstComponent();
+    JViewport leftView = leftPane.getViewport();
+    Tree suggestionTree = (Tree) leftView.getView();
+
+    TreePath webPIssuePath =
+        getTreePathWithString(
+            suggestionTree, SuggestionDataFactory.issueTypeNodeNames.get(IssueType.WEBP));
+    DefaultMutableTreeNode webPIssueNode =
+        (DefaultMutableTreeNode) webPIssuePath.getLastPathComponent();
+    assertThat(webPIssueNode.getChildCount()).isEqualTo(2);
   }
 
   @Test

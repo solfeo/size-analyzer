@@ -1,5 +1,6 @@
 <idea-plugin>
-  <version>0.3.0</version>
+  <idea-version since-build="181" until-build="192"/>
+  <version>0.3.1</version>
   <change-notes>
       Initial release.
   </change-notes>

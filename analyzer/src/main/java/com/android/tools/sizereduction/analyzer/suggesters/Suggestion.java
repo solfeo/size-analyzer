@@ -51,6 +51,7 @@ public abstract class Suggestion {
     BUNDLE_BASE_LARGE_FILES,
     LIBRARY_SHOULD_BE_EXTRACTED_TO_FEATURE_SPLITS,
     NONOPTIMAL_LIBRARY,
+    EMBEDDED_WEAR_APK,
   }
 
   public static Suggestion create(

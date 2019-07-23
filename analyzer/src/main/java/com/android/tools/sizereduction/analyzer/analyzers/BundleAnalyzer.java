@@ -18,10 +18,12 @@ package com.android.tools.sizereduction.analyzer.analyzers;
 
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 
+import com.android.bundle.Commands.DeliveryType;
 import com.android.tools.build.bundletool.model.AndroidManifest;
 import com.android.tools.build.bundletool.model.AppBundle;
 import com.android.tools.build.bundletool.model.BundleModule;
 import com.android.tools.build.bundletool.model.BundleModuleName;
+import com.android.tools.build.bundletool.model.version.BundleToolVersion;
 import com.android.tools.sizereduction.analyzer.model.BundleContext;
 import com.android.tools.sizereduction.analyzer.model.ZipFileData;
 import com.android.tools.sizereduction.analyzer.suggesters.BundleEntrySuggester;
@@ -99,10 +101,15 @@ public final class BundleAnalyzer implements ArtifactAnalyzer {
   }
 
   private static BundleContext createContext(BundleModule module) {
+    boolean onDemand =
+        BundleToolVersion.getVersionFromBundleConfig(module.getBundleConfig())
+                .isNewerThan(com.android.tools.build.bundletool.model.version.Version.of("0.10.1"))
+            ? !module.getModuleMetadata().getDeliveryType().equals(DeliveryType.INSTALL_TIME)
+            : module.getModuleMetadata().getOnDemandDeprecated();
     AndroidManifest manifest = module.getAndroidManifest();
     return BundleContext.create(
         manifest.getEffectiveMinSdkVersion(),
-        module.getModuleMetadata().getOnDemand(),
+        onDemand,
         manifest.getMetadataValue(METADATA_TAG_WEARABLE).isPresent());
   }
 }

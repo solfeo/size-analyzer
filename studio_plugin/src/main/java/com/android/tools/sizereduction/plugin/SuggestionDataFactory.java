@@ -10,12 +10,80 @@ import java.util.regex.Pattern;
 
 /** Creates SuggestionData instances with appropriate descriptions from a Suggestion instance. */
 public class SuggestionDataFactory {
+  public static EnumMap<IssueType, String> issueTypeNodeNames = new EnumMap<>(IssueType.class);
+  public static EnumMap<IssueType, String> issueTypeDescriptions = new EnumMap<>(IssueType.class);
+  public static EnumMap<IssueType, String> issueTypeAutoFixTitles = new EnumMap<>(IssueType.class);
   public static EnumMap<IssueType, String> suggestionTitles = new EnumMap<>(IssueType.class);
   public static EnumMap<IssueType, String> suggestionDescriptions = new EnumMap<>(IssueType.class);
   public static EnumMap<IssueType, String> suggestionMoreInfos = new EnumMap<>(IssueType.class);
   public static EnumMap<IssueType, String> suggestionAutoFixTitles = new EnumMap<>(IssueType.class);
 
-  public SuggestionDataFactory() {
+  static {
+    // Set to null to prevent creation of an intermediate node under that issue type.
+    issueTypeNodeNames.put(
+        IssueType.WEBP,
+        "Use lossless WebP where appropriate");
+    issueTypeNodeNames.put(
+        IssueType.MEDIA_STREAMING,
+        "Stream media files from the Internet");
+    issueTypeNodeNames.put(
+        IssueType.LARGE_FILES_DYNAMIC_FEATURE,
+        "Add large files to an on demand dynamic-feature");
+    issueTypeNodeNames.put(IssueType.PROGUARD_NO_MAP, null);
+    issueTypeNodeNames.put(IssueType.PROGUARD_EMPTY_MAP, null);
+    issueTypeNodeNames.put(IssueType.PROGUARD_NO_SHRINKING, null);
+    issueTypeNodeNames.put(IssueType.PROGUARD_NO_OBFUSCATION, null);
+    issueTypeNodeNames.put(
+        IssueType.QUESTIONABLE_FILE,
+        "Remove inaccessible files");
+    issueTypeNodeNames.put(IssueType.BUNDLES_OLD_GRADLE_PLUGIN, null);
+    issueTypeNodeNames.put(IssueType.BUNDLES_NO_ABI_SPLITTING, null);
+    issueTypeNodeNames.put(IssueType.BUNDLES_NO_DENSITY_SPLITTING, null);
+    issueTypeNodeNames.put(IssueType.BUNDLES_NO_LANGUAGE_SPLITTING, null);
+    issueTypeNodeNames.put(IssueType.BUNDLES_NO_UNCOMPRESSED_NATIVE_LIBS, null);
+
+    issueTypeDescriptions.put(
+        IssueType.WEBP,
+        "Converting PNG images to WebP will yield smaller files without any reduction in image"
+            + " quality.");
+    issueTypeDescriptions.put(
+        IssueType.MEDIA_STREAMING,
+        "Serving media files from the Internet will reduce your app's initial install size.");
+    issueTypeDescriptions.put(
+        IssueType.LARGE_FILES_DYNAMIC_FEATURE,
+        "Placing large files in an on-demand dynamic feature module will allow you to avoid"
+            + " bundling them in the app.");
+    issueTypeDescriptions.put(IssueType.PROGUARD_NO_MAP, null);
+    issueTypeDescriptions.put(IssueType.PROGUARD_EMPTY_MAP, null);
+    issueTypeDescriptions.put(IssueType.PROGUARD_NO_SHRINKING, null);
+    issueTypeDescriptions.put(IssueType.PROGUARD_NO_OBFUSCATION, null);
+    issueTypeDescriptions.put(
+        IssueType.QUESTIONABLE_FILE,
+        "Removing inaccessible and unneeded files will reduce the initial download size of your"
+            + " app.");
+    issueTypeDescriptions.put(IssueType.BUNDLES_OLD_GRADLE_PLUGIN, null);
+    issueTypeDescriptions.put(IssueType.BUNDLES_NO_ABI_SPLITTING, null);
+    issueTypeDescriptions.put(IssueType.BUNDLES_NO_DENSITY_SPLITTING, null);
+    issueTypeDescriptions.put(IssueType.BUNDLES_NO_LANGUAGE_SPLITTING, null);
+    issueTypeDescriptions.put(IssueType.BUNDLES_NO_UNCOMPRESSED_NATIVE_LIBS, null);
+
+    issueTypeAutoFixTitles.put(
+        IssueType.WEBP, "Convert image(s) to webp");
+    issueTypeAutoFixTitles.put(IssueType.MEDIA_STREAMING, null);
+    issueTypeAutoFixTitles.put(IssueType.LARGE_FILES_DYNAMIC_FEATURE, null);
+    issueTypeAutoFixTitles.put(IssueType.PROGUARD_NO_MAP, null);
+    issueTypeAutoFixTitles.put(IssueType.PROGUARD_EMPTY_MAP, null);
+    issueTypeAutoFixTitles.put(IssueType.PROGUARD_NO_SHRINKING, null);
+    issueTypeAutoFixTitles.put(IssueType.PROGUARD_NO_OBFUSCATION, null);
+    issueTypeAutoFixTitles.put(IssueType.QUESTIONABLE_FILE, null);
+    issueTypeAutoFixTitles.put(IssueType.BUNDLES_OLD_GRADLE_PLUGIN, null);
+    issueTypeAutoFixTitles.put(IssueType.BUNDLES_NO_ABI_SPLITTING, null);
+    issueTypeAutoFixTitles.put(IssueType.BUNDLES_NO_DENSITY_SPLITTING, null);
+    issueTypeAutoFixTitles.put(IssueType.BUNDLES_NO_LANGUAGE_SPLITTING, null);
+    issueTypeAutoFixTitles.put(IssueType.BUNDLES_NO_UNCOMPRESSED_NATIVE_LIBS, null);
+    issueTypeAutoFixTitles.put(IssueType.NONOPTIMAL_LIBRARY, null);
+    issueTypeAutoFixTitles.put(IssueType.LIBRARY_SHOULD_BE_EXTRACTED_TO_FEATURE_SPLITS, null);
+
     suggestionTitles.put(IssueType.WEBP, null);
     suggestionTitles.put(IssueType.MEDIA_STREAMING, null);
     suggestionTitles.put(IssueType.LARGE_FILES_DYNAMIC_FEATURE, null);

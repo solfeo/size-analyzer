@@ -4,7 +4,7 @@ plugins {
 }
 
 group 'com.android.tool.sizereduction'
-version '0.1'
+version '0.3.1'
 
 sourceCompatibility = 1.8
 

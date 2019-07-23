@@ -378,7 +378,7 @@ public final class GroovyGradleParser extends CodeVisitorSupport {
           // there are other plugins that can be applied, ignore them.
           break;
       }
-    } else if (parent.equals("dependencies")
+    } else if (parent != null && parent.equals("dependencies")
         && (statement.equals("implementation")
             || statement.equals("api")
             || statement.equals("compile"))) {

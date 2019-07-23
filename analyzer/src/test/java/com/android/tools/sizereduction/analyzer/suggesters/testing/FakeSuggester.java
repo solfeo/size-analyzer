@@ -61,7 +61,7 @@ public final class FakeSuggester
 
   // List of suggestions that should be returned when suggestions are requested for the whole
   // artifact.
-  @Nullable private ImmutableList<Suggestion> artifactSuggestions;
+  @Nullable private ImmutableMultimap<Context, Suggestion> artifactSuggestions;
 
   // Map containing suggestions keyed by context and entry paths that should be returned when
   // entries are requested for a particular context/entry.
@@ -69,18 +69,18 @@ public final class FakeSuggester
 
   @Override
   public ImmutableList<Suggestion> processApk(Context context, ZipFile apk) {
-    return getArtifactSuggestions();
+    return getArtifactSuggestions(context);
   }
 
   @Override
   public ImmutableList<Suggestion> processBundle(
       BundleContext context, AppBundle bundle, ZipFile bundleZip) {
-    return getArtifactSuggestions();
+    return getArtifactSuggestions(context);
   }
 
   @Override
   public ImmutableList<Suggestion> processProject(GradleContext context, File projectDir) {
-    return getArtifactSuggestions();
+    return getArtifactSuggestions(context);
   }
 
   @Override
@@ -101,7 +101,7 @@ public final class FakeSuggester
     return getEntrySuggestions(context, entry);
   }
 
-  public void setArtifactSuggestions(ImmutableList<Suggestion> suggestions) {
+  public void setArtifactSuggestions(ImmutableMultimap<Context, Suggestion> suggestions) {
     artifactSuggestions = suggestions;
   }
 
@@ -114,12 +114,12 @@ public final class FakeSuggester
     return ImmutableSet.copyOf(analyzedEntries);
   }
 
-  private ImmutableList<Suggestion> getArtifactSuggestions() {
+  private ImmutableList<Suggestion> getArtifactSuggestions(Context context) {
     if (artifactSuggestions == null) {
       return ImmutableList.of();
     }
 
-    return artifactSuggestions;
+    return ImmutableList.copyOf(artifactSuggestions.get(context));
   }
 
   private ImmutableList<Suggestion> getEntrySuggestions(Context context, FileData entry) {

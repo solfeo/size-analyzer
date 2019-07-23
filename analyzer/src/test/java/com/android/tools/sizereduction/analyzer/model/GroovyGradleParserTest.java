@@ -46,6 +46,8 @@ public final class GroovyGradleParserTest {
   private static final String VARIABLE_MINSDK_BUILD_FILE =
       "gradle_build_files/variable_minSdkVersion.build.gradle";
   private static final String COMPLEX_BUILD_FILE = "gradle_build_files/complex.build.gradle";
+  private static final String TOP_LEVEL_METHOD_CALL_GRADLE_BUILD_FILE =
+      "gradle_build_files/top_level_method_call.build.gradle";
   private static final String DISABLE_SPLITS_BUILD_FILE =
       "bundle_configs/disableSplits.build.gradle";
   private static final String MIX_BUNDLE_SPLITS_ENABLED_BUILD_FILE =
@@ -239,6 +241,14 @@ public final class GroovyGradleParserTest {
         .isEqualTo(18);
     assertThat(context.getBundleConfig().getBundleConfigLocation().getLanguageSplitLineNumber())
         .isEqualTo(15);
+  }
+
+  @Test
+  public void parseToplevelMethodCall() throws Exception {
+    File buildFile = TestUtils.getTestDataFile(TOP_LEVEL_METHOD_CALL_GRADLE_BUILD_FILE);
+    String content = Files.asCharSource(buildFile, UTF_8).read();
+    GradleContext context = GroovyGradleParser.parseGradleBuildFile(content, 1, null).build();
+    assertThat(context).isNotNull();
   }
 
   @Test

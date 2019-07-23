@@ -43,7 +43,7 @@ public class SuggestionTreeCellRenderer implements TreeCellRenderer {
             it.split(
                 endOffset - offset,
                 new SimpleTextAttributes(SimpleTextAttributes.STYLE_BOLD, JBColor.WHITE));
-          } else if (nodeObject instanceof SuggestionData) {
+          } else if (nodeObject instanceof SuggestionData || nodeObject instanceof IssueTypeData) {
             it.split(
                 endOffset - offset,
                 new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, JBColor.WHITE));
@@ -71,6 +71,21 @@ public class SuggestionTreeCellRenderer implements TreeCellRenderer {
         if (category.totalSizeSaved() != null) {
           ((SimpleColoredComponent) rendererComponent)
               .append(", " + category.totalSizeSaved(), annotationStyle);
+        }
+      } else if (nodeObject instanceof IssueTypeData) {
+        IssueTypeData issueType = (IssueTypeData) nodeObject;
+        if (issueType.totalSuggestions() == 1) {
+          ((SimpleColoredComponent) rendererComponent)
+              .append(
+                  "  " + issueType.totalSuggestions() + " recommendation", annotationStyle);
+        } else {
+          ((SimpleColoredComponent) rendererComponent)
+              .append(
+                  "  " + issueType.totalSuggestions() + " recommendations", annotationStyle);
+        }
+        if (issueType.totalSizeSaved() != null) {
+          ((SimpleColoredComponent) rendererComponent)
+              .append(", " + issueType.totalSizeSaved(), annotationStyle);
         }
       } else if (nodeObject instanceof SuggestionData) {
         SuggestionData suggestion = (SuggestionData) nodeObject;

@@ -25,11 +25,7 @@ public abstract class BundleContext implements Context {
 
   @VisibleForTesting
   public static BundleContext create(int minSdkVersion, boolean onDemand) {
-    return new AutoValue_BundleContext.Builder()
-        .setMinSdkVersion(minSdkVersion)
-        .setOnDemand(onDemand)
-        .setEmbedsWearApk(false)
-        .build();
+    return create(minSdkVersion, onDemand, /* embedsWearApk= */ false);
   }
 
   public static BundleContext create(int minSdkVersion, boolean onDemand, boolean embedsWearApk) {
@@ -43,11 +39,7 @@ public abstract class BundleContext implements Context {
 
   @VisibleForTesting
   public static BundleContext create(int minSdkVersion) {
-    return new AutoValue_BundleContext.Builder()
-        .setMinSdkVersion(minSdkVersion)
-        .setOnDemand(false)
-        .setEmbedsWearApk(false)
-        .build();
+     return create(minSdkVersion, /* onDemand= */ false, /* embedsWearApk= */ false);
   }
 
   /** The min sdk version declared for this project. */
